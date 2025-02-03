@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'profile.dart';
+import 'settings.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,27 +12,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 1; // Inicializa en la pestaña "Home"
+  int _selectedIndex = 1; // Inicia en "Home"
 
   static const TextStyle optionStyle =
   TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
 
-  // Contenido de cada pestaña
+  // Lista de widgets para cada pestaña
   final List<Widget> _widgetOptions = <Widget>[
-    const Center(
-      child: Text(
-        'This is the profile page',
-        style: optionStyle,
-      ),
-    ),
-    // Pantalla principal con Firestore
-    HomeContent(),
-    const Center(
-      child: Text(
-        'This is the settings page',
-        style: optionStyle,
-      ),
-    ),
+    const ProfilePage(),
+    const HomeContent(),
+    const SettingsPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -74,7 +65,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// Pantalla principal con Firestore (separada en un widget para mantener la estructura limpia)
+// Pantalla principal con Firestore
 class HomeContent extends StatefulWidget {
   const HomeContent({super.key});
 
