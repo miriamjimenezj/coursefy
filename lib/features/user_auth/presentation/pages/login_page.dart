@@ -4,11 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/sign_up_page.dart';
 import 'package:coursefy/features/user_auth/presentation/widgets/form_container_widget.dart';
-//import 'package:coursefy/global/common/toast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../firebase_auth/firebase_auth_services.dart';
+import 'home_admin.dart';
+import 'home_client.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isSigning = false;
   final FirebaseAuthService _auth = FirebaseAuthService();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
@@ -36,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text("Login"),
+        title: const Text("Login"),
       ),
       body: Center(
         child: Padding(
@@ -44,33 +46,25 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 "Login",
                 style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
               ),
-              SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
               FormContainerWidget(
                 controller: _emailController,
                 hintText: "Email",
                 isPasswordField: false,
               ),
-              SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               FormContainerWidget(
                 controller: _passwordController,
                 hintText: "Password",
                 isPasswordField: true,
               ),
-              SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
               GestureDetector(
-                onTap: () {
-                  _signIn();
-                },
+                onTap: _signIn,
                 child: Container(
                   width: double.infinity,
                   height: 45,
@@ -79,8 +73,9 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
-                    child: _isSigning ? CircularProgressIndicator(
-                      color: Colors.white,) : Text(
+                    child: _isSigning
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
                       "Login",
                       style: TextStyle(
                         color: Colors.white,
@@ -90,12 +85,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10),
               GestureDetector(
-                onTap: () {
-                  _signInWithGoogle();
-
-                },
+                onTap: _signInWithGoogle,
                 child: Container(
                   width: double.infinity,
                   height: 45,
@@ -106,9 +98,9 @@ class _LoginPageState extends State<LoginPage> {
                   child: Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(FontAwesomeIcons.google, color: Colors.white,),
-                        SizedBox(width: 5,),
+                      children: const [
+                        Icon(FontAwesomeIcons.google, color: Colors.white),
+                        SizedBox(width: 5),
                         Text(
                           "Sign in with Google",
                           style: TextStyle(
@@ -121,28 +113,21 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-
-
-              SizedBox(
-                height: 20,
-              ),
-
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Don't have an account?"),
-                  SizedBox(
-                    width: 5,
-                  ),
+                  const Text("Don't have an account?"),
+                  const SizedBox(width: 5),
                   GestureDetector(
                     onTap: () {
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => SignUpPage()),
+                        MaterialPageRoute(builder: (context) => const SignUpPage()),
                             (route) => false,
                       );
                     },
-                    child: Text(
+                    child: const Text(
                       "Sign Up",
                       style: TextStyle(
                         color: Colors.blue,
@@ -159,56 +144,114 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  /// **Función para iniciar sesión con correo y contraseña**
   void _signIn() async {
     setState(() {
       _isSigning = true;
     });
 
-    String email = _emailController.text;
-    String password = _passwordController.text;
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
 
-    User? user = await _auth.signInWithEmailAndPassword(email, password);
+    try {
+      User? user = await _auth.signInWithEmailAndPassword(email, password);
+
+      if (user != null) {
+        String? role = await _getUserRole(user.uid);
+
+        if (role == "admin") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeAdmin()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeClient()),
+          );
+        }
+      } else {
+        _showErrorDialog("Login Failed", "Invalid email or password.");
+      }
+    } catch (e) {
+      _showErrorDialog("Login Error", e.toString());
+    }
 
     setState(() {
       _isSigning = false;
     });
-
-    if (user != null) {
-      print("User is successfully signed in");
-      Navigator.pushNamed(context, "/home");
-    } else {
-      print("some error occured");
-    }
   }
 
-
-  _signInWithGoogle()async{
-
-    final GoogleSignIn _googleSignIn = GoogleSignIn();
+  /// **Función para iniciar sesión con Google**
+  void _signInWithGoogle() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
 
     try {
+      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
 
-      final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
-
-      if(googleSignInAccount != null ){
-        final GoogleSignInAuthentication googleSignInAuthentication = await
-        googleSignInAccount.authentication;
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
 
         final AuthCredential credential = GoogleAuthProvider.credential(
           idToken: googleSignInAuthentication.idToken,
           accessToken: googleSignInAuthentication.accessToken,
         );
 
-        await _firebaseAuth.signInWithCredential(credential);
-        Navigator.pushNamed(context, "/home");
+        UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
+        User? user = userCredential.user;
+
+        if (user != null) {
+          String? role = await _getUserRole(user.uid);
+
+          if (role == null) {
+            await _firestore.collection('users').doc(user.uid).set({
+              'email': user.email,
+              'role': 'client', // Por defecto, usuarios de Google serán clientes
+              'createdAt': DateTime.now(),
+            });
+            role = "client";
+          }
+
+          if (role == "admin") {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeAdmin()),
+            );
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeClient()),
+            );
+          }
+        }
       }
-
-    }catch(e) {
-      print("some error occured $e");
+    } catch (e) {
+      _showErrorDialog("Google Login Error", e.toString());
     }
-
-
   }
 
+  /// **Obtener el rol del usuario desde Firestore**
+  Future<String?> _getUserRole(String uid) async {
+    DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
+    return userDoc.exists ? userDoc['role'] as String : null;
+  }
 
+  /// **Mostrar un cuadro de diálogo de error**
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
