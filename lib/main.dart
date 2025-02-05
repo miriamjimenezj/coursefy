@@ -7,8 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coursefy/features/app/splash_screen/splash_screen.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/login_page.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/sign_up_page.dart';
-import 'package:coursefy/features/user_auth/presentation/pages/home_admin.dart';
-import 'package:coursefy/features/user_auth/presentation/pages/home_client.dart';
+import 'package:coursefy/features/user_auth/presentation/pages/admin/home_admin.dart';
+import 'package:coursefy/features/user_auth/presentation/pages/client/home_client.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

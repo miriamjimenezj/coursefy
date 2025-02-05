@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/login_page.dart';
-import 'profile.dart';
-import 'settings.dart';
+import 'profile_admin.dart';
+import 'settings_admin.dart';
 
-class HomeClient extends StatefulWidget {
-  const HomeClient({super.key});
+class HomeAdmin extends StatefulWidget {
+  const HomeAdmin({super.key});
 
   @override
-  State<HomeClient> createState() => _HomeClientState();
+  State<HomeAdmin> createState() => _HomeAdminState();
 }
 
-class _HomeClientState extends State<HomeClient> {
+class _HomeAdminState extends State<HomeAdmin> {
   int _selectedIndex = 1; // Inicia en la pestaña Home
 
   final List<Widget> _widgetOptions = <Widget>[
     const ProfilePage(),
     const Center(
       child: Text(
-        'Esta es la página cliente',
+        'Esta es la página admin',
         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
     ),
@@ -43,7 +43,7 @@ class _HomeClientState extends State<HomeClient> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Client Dashboard'),
+        title: const Text('Admin Dashboard'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

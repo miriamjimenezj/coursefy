@@ -7,7 +7,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Text(
-        'This is the settings page SEPARADO',
+        'This is the settings ADMIN page',
         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
     );

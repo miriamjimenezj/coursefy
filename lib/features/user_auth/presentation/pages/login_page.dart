@@ -8,8 +8,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../firebase_auth/firebase_auth_services.dart';
-import 'home_admin.dart';
-import 'home_client.dart';
+import 'admin/home_admin.dart';
+import 'client/home_client.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
