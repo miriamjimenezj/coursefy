@@ -42,8 +42,11 @@ class _HomeAdminState extends State<HomeAdmin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+      // Mostrar AppBar solo en Settings
+      appBar: _selectedIndex == 2
+          ? AppBar(
+        title: const Text('Settings'),
+        automaticallyImplyLeading: true, // Botón "Atrás" si es necesario
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -51,10 +54,13 @@ class _HomeAdminState extends State<HomeAdmin> {
             tooltip: "Sign Out",
           ),
         ],
-      ),
+      )
+          : null, // NO mostrar AppBar en Profile ni en Home
+
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
+
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(

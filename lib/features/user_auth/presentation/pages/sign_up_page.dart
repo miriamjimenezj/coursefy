@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coursefy/features/user_auth/firebase_auth/firebase_auth_services.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/login_page.dart';
 import 'package:coursefy/features/user_auth/presentation/widgets/form_container_widget.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:coursefy/features/user_auth/presentation/pages/admin/home_admin.dart';
+import 'package:coursefy/features/user_auth/presentation/pages/client/home_client.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -22,16 +22,41 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _adminCodeController = TextEditingController();
 
   bool isSigningUp = false;
   String _selectedRole = "client"; // Rol por defecto
+  String? _adminCode; // Código de administrador desde Firestore
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAdminCode(); // Obtener código de admin desde Firebase
+  }
 
   @override
   void dispose() {
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _adminCodeController.dispose();
     super.dispose();
+  }
+
+  /// **Obtener el Admin Code desde Firestore**
+  Future<void> _fetchAdminCode() async {
+    try {
+      DocumentSnapshot adminSettings =
+      await _firestore.collection('config').doc('admin_settings').get();
+
+      if (adminSettings.exists && adminSettings.data() != null) {
+        setState(() {
+          _adminCode = adminSettings['admin_code'];
+        });
+      }
+    } catch (e) {
+      _showErrorDialog("Error", "Could not fetch admin code. Please try again.");
+    }
   }
 
   /// **Función para registrarse con email y contraseña**
@@ -42,65 +67,100 @@ class _SignUpPageState extends State<SignUpPage> {
 
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
+    String adminCodeInput = _adminCodeController.text.trim();
 
-    User? user = await _auth.signUpWithEmailAndPassword(email, password, _selectedRole);
+    // Validar si el usuario quiere ser admin
+    if (_selectedRole == "admin") {
+      if (_adminCode == null) {
+        _showErrorDialog("Admin Code Error", "No admin code found in Firestore.");
+        setState(() {
+          isSigningUp = false;
+        });
+        return;
+      }
 
-    setState(() {
-      isSigningUp = false;
-    });
+      if (adminCodeInput != _adminCode) {
+        _showErrorDialog("Invalid Admin Code", "The admin code you entered is incorrect.");
+        setState(() {
+          isSigningUp = false;
+        });
+        return;
+      }
+    }
 
-    if (user != null) {
-      print("Usuario creado con éxito");
-      Navigator.pushNamed(context, "/home");
-    } else {
-      print("Ocurrió un error en el registro");
+    try {
+      // Crear usuario en Firebase Authentication
+      UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      User? user = userCredential.user;
+
+      if (user != null) {
+        // Guardar el rol del usuario en Firestore
+        await _firestore.collection('users').doc(user.uid).set({
+          'email': user.email,
+          'role': _selectedRole,
+          'createdAt': DateTime.now(),
+        });
+
+        // Iniciar sesión automáticamente
+        await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+
+        // Obtener el rol del usuario y redirigir a la pantalla correcta
+        _redirectUser(user.uid);
+      }
+    } catch (e) {
+      _showErrorDialog("Registration Error", "Could not register user. Please try again.");
+    } finally {
+      setState(() {
+        isSigningUp = false;
+      });
     }
   }
 
-  /// **Función para iniciar sesión con Google**
-  void _signInWithGoogle() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-
+  /// **Obtener el rol del usuario y redirigir a la pantalla correcta**
+  Future<void> _redirectUser(String uid) async {
     try {
-      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        String role = userDoc['role'];
 
-      if (googleSignInAccount != null) {
-        final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
-
-        final AuthCredential credential = GoogleAuthProvider.credential(
-          idToken: googleSignInAuthentication.idToken,
-          accessToken: googleSignInAuthentication.accessToken,
-        );
-
-        UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
-        User? user = userCredential.user;
-
-        if (user != null) {
-          String? role = await _getUserRole(user.uid);
-
-          // Si el usuario no tiene rol en Firestore, asignar "client" por defecto
-          if (role == null) {
-            await _firestore.collection('users').doc(user.uid).set({
-              'email': user.email,
-              'role': 'client',
-              'createdAt': DateTime.now(),
-            });
-            role = "client";
-          }
-
-          Navigator.pushNamed(context, "/home");
+        if (role == "admin") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeAdmin()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeClient()),
+          );
         }
       }
     } catch (e) {
-      print("Error en el inicio de sesión con Google: $e");
+      _showErrorDialog("Error", "Could not determine user role.");
     }
   }
 
-  /// **Obtener el rol del usuario desde Firestore**
-  Future<String?> _getUserRole(String uid) async {
-    DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
-    return userDoc.exists ? userDoc['role'] as String? : null;
+  /// **Mostrar un cuadro de diálogo de error**
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -136,6 +196,16 @@ class _SignUpPageState extends State<SignUpPage> {
                 },
               ),
 
+              // Campo extra solo si se elige "Admin"
+              if (_selectedRole == "admin") ...[
+                const SizedBox(height: 10),
+                FormContainerWidget(
+                  controller: _adminCodeController,
+                  hintText: "Admin Code",
+                  isPasswordField: true,
+                ),
+              ],
+
               const SizedBox(height: 30),
               GestureDetector(
                 onTap: _signUp,
@@ -149,62 +219,6 @@ class _SignUpPageState extends State<SignUpPage> {
                         : const Text("Sign Up", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 10),
-              // Botón de "Sign Up with Google"
-              GestureDetector(
-                onTap: _signInWithGoogle,
-                child: Container(
-                  width: double.infinity,
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(FontAwesomeIcons.google, color: Colors.white),
-                        SizedBox(width: 5),
-                        Text(
-                          "Sign Up with Google",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Opción de volver al login
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Already have an account?"),
-                  const SizedBox(width: 5),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
-                      );
-                    },
-                    child: const Text(
-                      "Log In",
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
