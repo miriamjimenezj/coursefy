@@ -1,0 +1,9 @@
+{
+  "appTitle": "Coursefy",
+  "settingsPageTitle": "Configuración",
+  "profilePageTitle": "Perfil",
+  "homePageTitle": "Inicio",
+  "settingsClientPage": "Esta es la página de configuración del cliente",
+  "selectLanguage": "Seleccionar Idioma",
+  "signOut": "Cerrar sesión"
+}

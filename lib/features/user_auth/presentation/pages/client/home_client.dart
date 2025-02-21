@@ -42,8 +42,11 @@ class _HomeClientState extends State<HomeClient> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Client Dashboard'),
+      // Mostrar AppBar solo en Settings
+      appBar: _selectedIndex == 2
+          ? AppBar(
+        title: const Text('Settings'),
+        automaticallyImplyLeading: true, // Botón "Atrás" si es necesario
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -51,10 +54,13 @@ class _HomeClientState extends State<HomeClient> {
             tooltip: "Sign Out",
           ),
         ],
-      ),
+      )
+          : null, // No mostrar AppBar en Profile ni en Home
+
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
+
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
