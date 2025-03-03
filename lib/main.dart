@@ -3,12 +3,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:coursefy/features/app/splash_screen/splash_screen.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/login_page.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/sign_up_page.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/admin/home_admin.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/client/home_client.dart';
+import 'package:coursefy/features/user_auth/presentation/pages/admin/settings_admin.dart';
+import 'package:coursefy/features/user_auth/presentation/pages/client/settings_client.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,30 +37,44 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale _locale = const Locale('en'); // Idioma predeterminado
+
+  void _changeLanguage(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
 
   Future<Widget> _getHomeScreen() async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user = auth.currentUser;
 
     if (user == null) {
-      return const LoginPage(); // Si no hay usuario autenticado, mostrar la página de login
+      return LoginPage(onLocaleChange: _changeLanguage); // ✅ Se pasa onLocaleChange
     }
 
     // Obtener el rol del usuario desde Firestore
     try {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      DocumentSnapshot userDoc =
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       String? role = userDoc.exists ? userDoc['role'] as String? : null;
 
       if (role == "admin") {
-        return const HomeAdmin();
+        return HomeAdmin(onLocaleChange: _changeLanguage);
       } else {
-        return const HomeClient();
+        return HomeClient(onLocaleChange: _changeLanguage);
       }
     } catch (e) {
       print("Error obteniendo el rol del usuario: $e");
-      return const LoginPage(); // Si hay un error, devolver la página de login
+      return LoginPage(onLocaleChange: _changeLanguage); // ✅ Se pasa onLocaleChange
     }
   }
 
@@ -64,22 +82,35 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Firebase',
+      title: 'Coursefy',
+      locale: _locale,
+      supportedLocales: const [
+        Locale('en'),
+        Locale('es'),
+      ],
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       home: FutureBuilder<Widget>(
         future: _getHomeScreen(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const SplashScreen(child: Center(child: CircularProgressIndicator()));
           } else {
-            return SplashScreen(child: snapshot.data ?? const LoginPage());
+            return SplashScreen(child: snapshot.data ?? LoginPage(onLocaleChange: _changeLanguage));
           }
         },
       ),
       routes: {
-        '/login': (context) => const LoginPage(),
-        '/signUp': (context) => const SignUpPage(),
-        '/homeAdmin': (context) => const HomeAdmin(),
-        '/homeClient': (context) => const HomeClient(),
+        '/login': (context) => LoginPage(onLocaleChange: _changeLanguage),
+        '/signUp': (context) => SignUpPage(onLocaleChange: _changeLanguage),
+        '/homeAdmin': (context) => HomeAdmin(onLocaleChange: _changeLanguage),
+        '/homeClient': (context) => HomeClient(onLocaleChange: _changeLanguage),
+        '/settingsAdmin': (context) => SettingsAdminPage(onLocaleChange: _changeLanguage),
+        '/settingsClient': (context) => SettingsClientPage(onLocaleChange: _changeLanguage),
       },
     );
   }

@@ -1,87 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/login_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'profile_client.dart';
 import 'settings_client.dart';
 
 class HomeClient extends StatefulWidget {
-  const HomeClient({super.key});
+  final Function(Locale) onLocaleChange;
+
+  const HomeClient({super.key, required this.onLocaleChange});
 
   @override
   State<HomeClient> createState() => _HomeClientState();
 }
 
 class _HomeClientState extends State<HomeClient> {
-  int _selectedIndex = 1; // Inicia en la pestaña Home
-
-  final List<Widget> _widgetOptions = <Widget>[
-    const ProfilePage(),
-    const Center(
-      child: Text(
-        'Esta es la página cliente',
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-      ),
-    ),
-    const SettingsPage(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  void _signOut() async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-    );
-  }
+  int _selectedIndex = 1;
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _widgetOptions = <Widget>[
+      const ProfilePage(),
+      Center(
+        child: Text(
+          AppLocalizations.of(context)!.homeClientPage,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+      ),
+      SettingsClientPage(onLocaleChange: widget.onLocaleChange), // ✅ Pasamos onLocaleChange
+    ];
+
     return Scaffold(
-      // Mostrar AppBar solo en Settings
       appBar: _selectedIndex == 2
           ? AppBar(
-        title: const Text('Settings'),
-        automaticallyImplyLeading: true, // Botón "Atrás" si es necesario
+        title: Text(AppLocalizations.of(context)!.settingsPageTitle),
+        automaticallyImplyLeading: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: _signOut,
-            tooltip: "Sign Out",
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginPage(onLocaleChange: widget.onLocaleChange),
+                ),
+              );
+            },
+            tooltip: AppLocalizations.of(context)!.signOut,
           ),
         ],
       )
-          : null, // No mostrar AppBar en Profile ni en Home
-
+          : null,
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
-
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-            backgroundColor: Colors.blue,
+            icon: const Icon(Icons.person),
+            label: AppLocalizations.of(context)!.profile,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-            backgroundColor: Colors.red,
+            icon: const Icon(Icons.home),
+            label: AppLocalizations.of(context)!.home,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-            backgroundColor: Colors.pink,
+            icon: const Icon(Icons.settings),
+            label: AppLocalizations.of(context)!.settings,
           ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
       ),
     );
   }

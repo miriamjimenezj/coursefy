@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/login_page.dart';
 
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+class SettingsClientPage extends StatelessWidget {
+  final Function(Locale) onLocaleChange;
+
+  const SettingsClientPage({super.key, required this.onLocaleChange});
 
   /// **Función para eliminar la cuenta y salir**
   Future<void> _deleteAccount(BuildContext context) async {
@@ -23,7 +26,7 @@ class SettingsPage extends StatelessWidget {
         await FirebaseAuth.instance.signOut();
 
       } catch (e) {
-        _showErrorDialog(context, "Error", "Could not delete the account. Try again.");
+        _showErrorDialog(context, AppLocalizations.of(context)!.errorTitle, AppLocalizations.of(context)!.deleteAccountError);
       }
     }
   }
@@ -33,26 +36,24 @@ class SettingsPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Delete Account"),
-        content: const Text("Are you sure you want to delete your account? This action cannot be undone."),
+        title: Text(AppLocalizations.of(context)!.deleteAccountTitle),
+        content: Text(AppLocalizations.of(context)!.deleteAccountMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context), // Cerrar el diálogo sin hacer nada
-            child: const Text("Cancel"),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Cerrar el diálogo antes de proceder
               _deleteAccount(context); // Intentar eliminar la cuenta
-
-              // 🔥 **Redirigir inmediatamente al LoginPage**
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
+                MaterialPageRoute(builder: (context) => LoginPage(onLocaleChange: onLocaleChange)),
                     (route) => false,
               );
             },
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -69,7 +70,7 @@ class SettingsPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
+            child: Text(AppLocalizations.of(context)!.ok),
           ),
         ],
       ),
@@ -78,18 +79,49 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Locale _selectedLocale = Localizations.localeOf(context);
+
     return Scaffold(
-      body: Center(
-        child: GestureDetector(
-          onTap: () => _showDeleteConfirmationDialog(context),
-          child: const Text(
-            "Delete Account",
-            style: TextStyle(
-              color: Colors.red,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, // Alinea elementos a la izquierda
+          children: [
+            const SizedBox(height: 20),
+
+            // Opción para cambiar idioma
+            Text(
+              AppLocalizations.of(context)!.selectLanguage,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-          ),
+            DropdownButton<Locale>(
+              value: _selectedLocale.languageCode == 'es' ? const Locale('es') : const Locale('en'),
+              items: const [
+                DropdownMenuItem(value: Locale('en'), child: Text("English")),
+                DropdownMenuItem(value: Locale('es'), child: Text("Español")),
+              ],
+              onChanged: (Locale? locale) {
+                if (locale != null) {
+                  onLocaleChange(locale); // Aplica el cambio de idioma en toda la app
+                }
+              },
+            ),
+
+            const SizedBox(height: 20),
+
+            // Opción para eliminar cuenta
+            GestureDetector(
+              onTap: () => _showDeleteConfirmationDialog(context),
+              child: Text(
+                AppLocalizations.of(context)!.deleteAccount,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

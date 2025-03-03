@@ -8,7 +8,9 @@ import 'package:coursefy/features/user_auth/presentation/pages/admin/home_admin.
 import 'package:coursefy/features/user_auth/presentation/pages/client/home_client.dart';
 
 class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+  final Function(Locale) onLocaleChange;
+
+  const SignUpPage({super.key, required this.onLocaleChange});
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
@@ -22,7 +24,7 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-  TextEditingController _adminCodeController = TextEditingController();
+  TextEditingController _adminCodeController = TextEditingController(); // Admin code
 
   bool isSigningUp = false;
   String _selectedRole = "client"; // Rol por defecto
@@ -130,12 +132,12 @@ class _SignUpPageState extends State<SignUpPage> {
         if (role == "admin") {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomeAdmin()),
+            MaterialPageRoute(builder: (context) => HomeAdmin(onLocaleChange: widget.onLocaleChange)),
           );
         } else {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomeClient()),
+            MaterialPageRoute(builder: (context) => HomeClient(onLocaleChange: widget.onLocaleChange)),
           );
         }
       }
@@ -231,16 +233,10 @@ class _SignUpPageState extends State<SignUpPage> {
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                        MaterialPageRoute(builder: (context) => LoginPage(onLocaleChange: widget.onLocaleChange)),
                       );
                     },
-                    child: const Text(
-                      "Log In",
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: const Text("Log In", style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
