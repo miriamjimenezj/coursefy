@@ -52,6 +52,7 @@ class _HomeAdminState extends State<HomeAdmin> {
 
   /// Widget para mostrar los cursos
   Widget _buildCoursesList() {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('courses')
@@ -63,7 +64,7 @@ class _HomeAdminState extends State<HomeAdmin> {
           return const Center(child: CircularProgressIndicator());
         }
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(child: Text(AppLocalizations.of(context)!.noCourses));
+          return Center(child: Text (AppLocalizations.of(context)!.noCourses));
         }
 
         final courses = snapshot.data!.docs;
