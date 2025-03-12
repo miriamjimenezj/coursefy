@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/login_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'profile_admin.dart';
 import 'settings_admin.dart';
+import 'courses/create_course.dart';
 
 class HomeAdmin extends StatefulWidget {
   final Function(Locale) onLocaleChange;
@@ -16,18 +18,141 @@ class HomeAdmin extends StatefulWidget {
 
 class _HomeAdminState extends State<HomeAdmin> {
   int _selectedIndex = 1;
+  final userId = FirebaseAuth.instance.currentUser?.uid;
+
+  /// Función para eliminar un curso
+  Future<void> _deleteCourse(String courseId) async {
+    await FirebaseFirestore.instance.collection('courses').doc(courseId).delete();
+  }
+
+  /// Función para mostrar el diálogo de confirmación
+  void _confirmDeleteCourse(String courseId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.deleteAccountTitle),
+        content: Text(AppLocalizations.of(context)!.deleteAccountMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _deleteCourse(courseId);
+              setState(() {}); // Recargar los cursos después de eliminar
+            },
+            child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Widget para mostrar los cursos
+  Widget _buildCoursesList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('courses')
+          .where('createdBy', isEqualTo: userId) // Filtrar por usuario
+          .orderBy('createdAt', descending: true) // Ordenar por creación
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Center(child: Text(AppLocalizations.of(context)!.noCourses));
+        }
+
+        final courses = snapshot.data!.docs;
+
+        return ListView.builder(
+          shrinkWrap: true,
+          itemCount: courses.length,
+          itemBuilder: (context, index) {
+            final course = courses[index];
+            final courseName = course['title'];
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(courseName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () {
+                          // Aquí lógica para editar curso (Futuro)
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _confirmDeleteCourse(course.id),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// Botón de crear curso
+  Widget _buildCreateCourseButton() {
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: ElevatedButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateCoursePage()),
+          );
+        },
+        icon: const Icon(Icons.add),
+        label: Text(AppLocalizations.of(context)!.createCourse),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.pink[100],
+          minimumSize: const Size(double.infinity, 50),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> _widgetOptions = <Widget>[
       const ProfilePage(),
-      Center(
-        child: Text(
-          AppLocalizations.of(context)!.homeAdminPage,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
+      Column(
+        children: [
+          const SizedBox(height: 20),
+          Text(
+            "\n\n${AppLocalizations.of(context)!.welcome}",
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            AppLocalizations.of(context)!.coursesCreated,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+          Expanded(child: _buildCoursesList()), // Lista de cursos
+          _buildCreateCourseButton(), // Botón debajo de la lista
+        ],
       ),
-      SettingsAdminPage(onLocaleChange: widget.onLocaleChange), // ✅ Pasamos onLocaleChange
+      SettingsAdminPage(onLocaleChange: widget.onLocaleChange),
     ];
 
     return Scaffold(
@@ -52,9 +177,7 @@ class _HomeAdminState extends State<HomeAdmin> {
         ],
       )
           : null,
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
+      body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(

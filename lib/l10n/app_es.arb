@@ -36,5 +36,21 @@
   "deleteAccountMessage": "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.",
   "deleteAccountError": "No se pudo eliminar la cuenta. Inténtalo de nuevo.",
   "ok": "OK",
-  "errorTitle": "Error"
+  "errorTitle": "Error",
+
+  "createNewCourse": "Crear nuevo curso",
+  "courseName": "Nombre del curso",
+  "create": "Crear",
+  "editCourse": "Editar curso",
+  "save": "Guardar",
+  "noCoursesYet": "Aún no has creado ningún curso.",
+  "createCourse": "Crear nuevo curso",
+  "coursesCreated": "Cursos que has creado",
+  "noCourses": "No se han encontrado cursos",
+  "welcome": "¡Bienvenido!",
+
+  "courseNameRequired": "El nombre del curso es obligatorio.",
+  "userNotLoggedIn": "El usuario no ha iniciado sesión.",
+  "createCourseError": "Error al crear el curso. Inténtalo de nuevo."
+
 }

@@ -36,5 +36,18 @@
   "deleteAccountMessage": "Are you sure you want to delete your account? This action cannot be undone.",
   "deleteAccountError": "Could not delete the account. Try again.",
   "ok": "OK",
-  "errorTitle": "Error"
+  "errorTitle": "Error",
+  "createNewCourse": "Create new course",
+  "courseName": "Course name",
+  "create": "Create",
+  "editCourse": "Edit course",
+  "save": "Save",
+  "noCoursesYet": "You haven't created any course yet.",
+  "createCourse": "Create new course",
+  "coursesCreated": "Courses you have created",
+  "noCourses": "No courses found",
+  "welcome": "Welcome!",
+  "courseNameRequired": "Course name is required.",
+  "userNotLoggedIn": "User is not logged in.",
+  "createCourseError": "Failed to create course. Please try again."
 }
