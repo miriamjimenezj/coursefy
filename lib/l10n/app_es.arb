@@ -49,8 +49,20 @@
   "noCourses": "No se han encontrado cursos",
   "welcome": "¡Bienvenido!",
 
-  "courseNameRequired": "El nombre del curso es obligatorio.",
   "userNotLoggedIn": "El usuario no ha iniciado sesión.",
-  "createCourseError": "Error al crear el curso. Inténtalo de nuevo."
+  "createCourseError": "Error al crear el curso. Inténtalo de nuevo.",
+
+  "courseNameRequired": "El nombre del curso es obligatorio.",
+  "courseUpdated": "¡Curso actualizado con éxito!",
+  "errorUpdatingCourse": "Error al actualizar el curso. Inténtalo de nuevo.",
+  "editCourseInstruction": "Modifica el nombre del curso a continuación:",
+  "content": "Contenido",
+  "writeContent": "Escribe aquí el contenido...",
+  "attachFile": "Adjuntar un archivo",
+  "addQuestion": "Añadir Pregunta",
+  "submitCourse": "Enviar Curso",
+  "question": "Pregunta",
+  "answer": "Respuesta",
+  "courseCreated": "Curso Creado"
 
 }

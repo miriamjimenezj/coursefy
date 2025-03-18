@@ -11,87 +11,169 @@ class CreateCoursePage extends StatefulWidget {
 }
 
 class _CreateCoursePageState extends State<CreateCoursePage> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _courseNameController = TextEditingController();
-  bool _isLoading = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// Crear curso en Firebase
-  Future<void> _createCourse() async {
-    final String courseName = _courseNameController.text.trim();
-    final User? user = FirebaseAuth.instance.currentUser;
+  List<Map<String, dynamic>> _levels = List.generate(
+    5,
+        (index) => {
+      'content': TextEditingController(),
+      'file': null,
+      'tests': [],
+    },
+  );
 
-    if (courseName.isEmpty) {
-      _showErrorDialog(AppLocalizations.of(context)!.errorTitle, AppLocalizations.of(context)!.courseNameRequired);
-      return;
-    }
-
-    if (user == null) {
-      _showErrorDialog(AppLocalizations.of(context)!.errorTitle, AppLocalizations.of(context)!.userNotLoggedIn);
-      return;
-    }
-
+  /// **Función para agregar una nueva pregunta a un nivel**
+  void _addQuestion(int levelIndex) {
     setState(() {
-      _isLoading = true;
+      _levels[levelIndex]['tests'].add({
+        'question': TextEditingController(),
+        'answers': List.generate(4, (index) => TextEditingController()),
+        'correctAnswers': List.generate(4, (index) => false),
+      });
     });
-
-    try {
-      await FirebaseFirestore.instance.collection('courses').add({
-        'title': courseName,
-        'createdBy': user.uid,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      Navigator.pop(context); // Volver atrás tras crear
-    } catch (e) {
-      _showErrorDialog(AppLocalizations.of(context)!.errorTitle, AppLocalizations.of(context)!.createCourseError);
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 
-  /// Mostrar errores
-  void _showErrorDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.ok),
-          ),
-        ],
-      ),
+  /// **Función para guardar el curso en Firebase**
+  Future<void> _saveCourse() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    String userId = _auth.currentUser?.uid ?? '';
+
+    Map<String, dynamic> courseData = {
+      'title': _courseNameController.text.trim(),
+      'createdBy': userId,
+      'createdAt': Timestamp.now(),
+      'levels': _levels.asMap().map((index, level) {
+        return MapEntry(
+          'level${index + 1}',
+          {
+            'content': level['content'].text.trim(),
+            'tests': level['tests'].map((test) {
+              return {
+                'question': test['question'].text.trim(),
+                'answers': List.generate(
+                  4,
+                      (i) => {
+                    'text': test['answers'][i].text.trim(),
+                    'correct': test['correctAnswers'][i],
+                  },
+                ),
+              };
+            }).toList(),
+          },
+        );
+      }),
+    };
+
+    await _firestore.collection('courses').add(courseData);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(AppLocalizations.of(context)!.courseCreated)),
     );
+
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.createCourse)),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: _courseNameController,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.courseName,
-                border: OutlineInputBorder(),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _courseNameController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.courseName,
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return AppLocalizations.of(context)!.courseNameRequired;
+                  }
+                  return null;
+                },
               ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _isLoading ? null : _createCourse,
-              child: _isLoading
-                  ? const CircularProgressIndicator()
-                  : Text(AppLocalizations.of(context)!.createCourse),
-            ),
-          ],
+              const SizedBox(height: 20),
+              for (int i = 0; i < _levels.length; i++) _buildLevelSection(i),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _saveCourse,
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                child: Text(AppLocalizations.of(context)!.submitCourse),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLevelSection(int levelIndex) {
+    return ExpansionTile(
+      title: Text("${AppLocalizations.of(context)!.content} L${levelIndex + 1}"),
+      children: [
+        TextFormField(
+          controller: _levels[levelIndex]['content'],
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.writeContent,
+            border: OutlineInputBorder(),
+          ),
+          maxLines: 3,
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton.icon(
+          onPressed: () => _addQuestion(levelIndex),
+          icon: const Icon(Icons.add),
+          label: Text(AppLocalizations.of(context)!.addQuestion),
+        ),
+        ..._levels[levelIndex]['tests'].map<Widget>((test) {
+          return _buildTestQuestion(test);
+        }).toList(),
+      ],
+    );
+  }
+
+  Widget _buildTestQuestion(Map<String, dynamic> test) {
+    return Column(
+      children: [
+        TextFormField(
+          controller: test['question'],
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.question,
+            border: OutlineInputBorder(),
+          ),
+        ),
+        ...List.generate(4, (i) {
+          return Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: test['answers'][i],
+                  decoration: InputDecoration(
+                    labelText: "${AppLocalizations.of(context)!.answer} ${i + 1}",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              Checkbox(
+                value: test['correctAnswers'][i],
+                onChanged: (val) {
+                  setState(() {
+                    test['correctAnswers'][i] = val!;
+                  });
+                },
+              ),
+            ],
+          );
+        }),
+      ],
     );
   }
 }

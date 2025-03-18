@@ -6,6 +6,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'profile_admin.dart';
 import 'settings_admin.dart';
 import 'courses/create_course.dart';
+import 'courses/edit_course.dart'; // ✅ Importamos la clase EditCoursePage
 
 class HomeAdmin extends StatefulWidget {
   final Function(Locale) onLocaleChange;
@@ -20,12 +21,12 @@ class _HomeAdminState extends State<HomeAdmin> {
   int _selectedIndex = 1;
   final userId = FirebaseAuth.instance.currentUser?.uid;
 
-  /// Función para eliminar un curso
+  /// **Función para eliminar un curso**
   Future<void> _deleteCourse(String courseId) async {
     await FirebaseFirestore.instance.collection('courses').doc(courseId).delete();
   }
 
-  /// Función para mostrar el diálogo de confirmación
+  /// **Mostrar un diálogo de confirmación antes de borrar el curso**
   void _confirmDeleteCourse(String courseId) {
     showDialog(
       context: context,
@@ -41,7 +42,7 @@ class _HomeAdminState extends State<HomeAdmin> {
             onPressed: () async {
               Navigator.pop(context);
               await _deleteCourse(courseId);
-              setState(() {}); // Recargar los cursos después de eliminar
+              setState(() {}); // Recargar la lista después de eliminar
             },
             child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)),
           ),
@@ -50,21 +51,20 @@ class _HomeAdminState extends State<HomeAdmin> {
     );
   }
 
-  /// Widget para mostrar los cursos
+  /// **Widget para mostrar los cursos**
   Widget _buildCoursesList() {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('courses')
-          .where('createdBy', isEqualTo: userId) // Filtrar por usuario
-          .orderBy('createdAt', descending: true) // Ordenar por creación
+          .where('createdBy', isEqualTo: userId) // Filtrar cursos por usuario
+          .orderBy('createdAt', descending: true) // Ordenar por fecha de creación
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(child: Text (AppLocalizations.of(context)!.noCourses));
+          return Center(child: Text(AppLocalizations.of(context)!.noCourses));
         }
 
         final courses = snapshot.data!.docs;
@@ -75,6 +75,20 @@ class _HomeAdminState extends State<HomeAdmin> {
           itemBuilder: (context, index) {
             final course = courses[index];
             final courseName = course['title'];
+
+            // ✅ Verificar si "levels" existe antes de acceder
+            final List<Map<String, dynamic>> levels = [];
+            if (course.data() != null && (course.data() as Map<String, dynamic>).containsKey('levels')) {
+              final rawLevels = course['levels'];
+              if (rawLevels is List) {
+                for (var level in rawLevels) {
+                  if (level is Map<String, dynamic>) {
+                    levels.add(level);
+                  }
+                }
+              }
+            }
+
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
@@ -91,7 +105,17 @@ class _HomeAdminState extends State<HomeAdmin> {
                       IconButton(
                         icon: const Icon(Icons.edit, color: Colors.blue),
                         onPressed: () {
-                          // Aquí lógica para editar curso (Futuro)
+                          // ✅ Redirigir a EditCoursePage con levels correctamente manejado
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditCoursePage(
+                                courseId: course.id,
+                                currentTitle: courseName,
+                                levels: levels, // ✅ Se pasa levels de forma segura
+                              ),
+                            ),
+                          );
                         },
                       ),
                       IconButton(
@@ -109,7 +133,7 @@ class _HomeAdminState extends State<HomeAdmin> {
     );
   }
 
-  /// Botón de crear curso
+  /// **Botón de crear curso**
   Widget _buildCreateCourseButton() {
     return Padding(
       padding: const EdgeInsets.all(15.0),
@@ -149,8 +173,8 @@ class _HomeAdminState extends State<HomeAdmin> {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
-          Expanded(child: _buildCoursesList()), // Lista de cursos
-          _buildCreateCourseButton(), // Botón debajo de la lista
+          Expanded(child: _buildCoursesList()), // ✅ Lista de cursos
+          _buildCreateCourseButton(), // ✅ Botón para crear curso
         ],
       ),
       SettingsAdminPage(onLocaleChange: widget.onLocaleChange),
