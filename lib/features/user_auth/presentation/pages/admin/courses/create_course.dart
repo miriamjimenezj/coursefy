@@ -12,63 +12,51 @@ class CreateCoursePage extends StatefulWidget {
 
 class _CreateCoursePageState extends State<CreateCoursePage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _courseNameController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final List<Map<String, dynamic>> _levels = List.generate(5, (_) => {
+    'content': TextEditingController(),
+    'tests': <Map<String, dynamic>>[],
+  });
 
-  List<Map<String, dynamic>> _levels = List.generate(
-    5,
-        (index) => {
-      'content': TextEditingController(),
-      'file': null,
-      'tests': [],
-    },
-  );
-
-  /// **Función para agregar una nueva pregunta a un nivel**
   void _addQuestion(int levelIndex) {
     setState(() {
       _levels[levelIndex]['tests'].add({
         'question': TextEditingController(),
-        'answers': List.generate(4, (index) => TextEditingController()),
-        'correctAnswers': List.generate(4, (index) => false),
+        'answers': List.generate(4, (_) => {
+          'text': TextEditingController(),
+          'correct': false,
+        }),
       });
     });
   }
 
-  /// **Función para guardar el curso en Firebase**
   Future<void> _saveCourse() async {
     if (!_formKey.currentState!.validate()) return;
 
-    String userId = _auth.currentUser?.uid ?? '';
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
 
-    Map<String, dynamic> courseData = {
-      'title': _courseNameController.text.trim(),
+    Map<String, dynamic> levelsData = {};
+    for (int i = 0; i < _levels.length; i++) {
+      levelsData['level${i + 1}'] = {
+        'content': _levels[i]['content'].text.trim(),
+        'tests': _levels[i]['tests'].map((test) => {
+          'question': test['question'].text.trim(),
+          'answers': List.generate(4, (j) => {
+            'text': test['answers'][j]['text'].text.trim(),
+            'correct': test['answers'][j]['correct'],
+          })
+        }).toList(),
+      };
+    }
+
+    await FirebaseFirestore.instance.collection('courses').add({
+      'title': _titleController.text.trim(),
       'createdBy': userId,
       'createdAt': Timestamp.now(),
-      'levels': _levels.asMap().map((index, level) {
-        return MapEntry(
-          'level${index + 1}',
-          {
-            'content': level['content'].text.trim(),
-            'tests': level['tests'].map((test) {
-              return {
-                'question': test['question'].text.trim(),
-                'answers': List.generate(
-                  4,
-                      (i) => {
-                    'text': test['answers'][i].text.trim(),
-                    'correct': test['correctAnswers'][i],
-                  },
-                ),
-              };
-            }).toList(),
-          },
-        );
-      }),
-    };
-
-    await _firestore.collection('courses').add(courseData);
+      'levels': levelsData,
+    });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context)!.courseCreated)),
@@ -88,10 +76,10 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           child: Column(
             children: [
               TextFormField(
-                controller: _courseNameController,
+                controller: _titleController,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.courseName,
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -115,27 +103,25 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     );
   }
 
-  Widget _buildLevelSection(int levelIndex) {
+  Widget _buildLevelSection(int index) {
     return ExpansionTile(
-      title: Text("${AppLocalizations.of(context)!.content} L${levelIndex + 1}"),
+      title: Text("${AppLocalizations.of(context)!.content} L${index + 1}"),
       children: [
         TextFormField(
-          controller: _levels[levelIndex]['content'],
+          controller: _levels[index]['content'],
           decoration: InputDecoration(
             labelText: AppLocalizations.of(context)!.writeContent,
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
           ),
           maxLines: 3,
         ),
         const SizedBox(height: 10),
         ElevatedButton.icon(
-          onPressed: () => _addQuestion(levelIndex),
+          onPressed: () => _addQuestion(index),
           icon: const Icon(Icons.add),
           label: Text(AppLocalizations.of(context)!.addQuestion),
         ),
-        ..._levels[levelIndex]['tests'].map<Widget>((test) {
-          return _buildTestQuestion(test);
-        }).toList(),
+        ..._levels[index]['tests'].map<Widget>((test) => _buildTestQuestion(test)).toList(),
       ],
     );
   }
@@ -147,7 +133,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           controller: test['question'],
           decoration: InputDecoration(
             labelText: AppLocalizations.of(context)!.question,
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
           ),
         ),
         ...List.generate(4, (i) {
@@ -155,18 +141,18 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
             children: [
               Expanded(
                 child: TextFormField(
-                  controller: test['answers'][i],
+                  controller: test['answers'][i]['text'],
                   decoration: InputDecoration(
                     labelText: "${AppLocalizations.of(context)!.answer} ${i + 1}",
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
               ),
               Checkbox(
-                value: test['correctAnswers'][i],
+                value: test['answers'][i]['correct'],
                 onChanged: (val) {
                   setState(() {
-                    test['correctAnswers'][i] = val!;
+                    test['answers'][i]['correct'] = val!;
                   });
                 },
               ),

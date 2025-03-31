@@ -61,5 +61,6 @@
   "submitCourse": "Submit Course",
   "question": "Question",
   "answer": "Answer",
-  "courseCreated": "Course Created"
+  "courseCreated": "Course Created",
+  "reset": "Reset"
 }

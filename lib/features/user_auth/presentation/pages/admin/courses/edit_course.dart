@@ -5,7 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class EditCoursePage extends StatefulWidget {
   final String courseId;
   final String currentTitle;
-  final List<Map<String, dynamic>> levels;
+  final Map<String, dynamic> levels;
 
   const EditCoursePage({
     super.key,
@@ -21,34 +21,76 @@ class EditCoursePage extends StatefulWidget {
 class _EditCoursePageState extends State<EditCoursePage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
-  late List<Map<String, dynamic>> _levels;
+  late Map<String, dynamic> _levels;
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.currentTitle);
-    _levels = List.from(widget.levels);
+
+    _levels = widget.levels.map((key, level) {
+      final content = TextEditingController(text: level['content']);
+      final tests = (level['tests'] as List).map((test) {
+        return {
+          'question': TextEditingController(text: test['question']),
+          'answers': (test['answers'] as List).map((answer) {
+            return {
+              'text': TextEditingController(text: answer['text']),
+              'correct': answer['correct'],
+            };
+          }).toList(),
+        };
+      }).toList();
+
+      return MapEntry(key, {
+        'content': content,
+        'tests': tests,
+      });
+    });
   }
 
   @override
   void dispose() {
     _titleController.dispose();
+    for (var level in _levels.values) {
+      level['content'].dispose();
+      for (var test in level['tests']) {
+        test['question'].dispose();
+        for (var answer in test['answers']) {
+          answer['text'].dispose();
+        }
+      }
+    }
     super.dispose();
   }
 
-  /// **Actualizar curso en Firestore**
   Future<void> _updateCourse() async {
     if (_formKey.currentState!.validate()) {
       try {
+        Map<String, dynamic> levelsData = {};
+        _levels.forEach((key, level) {
+          levelsData[key] = {
+            'content': level['content'].text.trim(),
+            'tests': level['tests'].map((test) {
+              return {
+                'question': test['question'].text.trim(),
+                'answers': List.generate(4, (i) => {
+                  'text': test['answers'][i]['text'].text.trim(),
+                  'correct': test['answers'][i]['correct'],
+                }),
+              };
+            }).toList(),
+          };
+        });
+
         await FirebaseFirestore.instance.collection('courses').doc(widget.courseId).update({
           'title': _titleController.text.trim(),
-          'levels': _levels,
+          'levels': levelsData,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context)!.courseUpdated)),
         );
-
         Navigator.pop(context);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -58,13 +100,14 @@ class _EditCoursePageState extends State<EditCoursePage> {
     }
   }
 
-  /// **Agregar una nueva pregunta a un nivel**
-  void _addQuestion(int levelIndex) {
+  void _addQuestion(String levelKey) {
     setState(() {
-      _levels[levelIndex]['tests'].add({
+      _levels[levelKey]['tests'].add({
         'question': TextEditingController(),
-        'answers': List.generate(4, (index) => TextEditingController()),
-        'correctAnswers': List.generate(4, (index) => false),
+        'answers': List.generate(4, (index) => {
+          'text': TextEditingController(),
+          'correct': false,
+        }),
       });
     });
   }
@@ -83,7 +126,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
                 controller: _titleController,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.courseName,
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -93,7 +136,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
                 },
               ),
               const SizedBox(height: 20),
-              for (int i = 0; i < _levels.length; i++) _buildLevelSection(i),
+              ..._levels.entries.map((entry) => _buildLevelSection(entry.key, entry.value)).toList(),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _updateCourse,
@@ -107,43 +150,37 @@ class _EditCoursePageState extends State<EditCoursePage> {
     );
   }
 
-  /// **Construir la interfaz de edición de niveles**
-  Widget _buildLevelSection(int levelIndex) {
+  Widget _buildLevelSection(String levelKey, Map<String, dynamic> level) {
     return ExpansionTile(
-      title: Text("${AppLocalizations.of(context)!.content} L${levelIndex + 1}"),
+      title: Text("${AppLocalizations.of(context)!.content} ${levelKey}"),
       children: [
         TextFormField(
-          controller: TextEditingController(text: _levels[levelIndex]['content']),
-          onChanged: (value) => _levels[levelIndex]['content'] = value,
+          controller: level['content'],
           decoration: InputDecoration(
             labelText: AppLocalizations.of(context)!.writeContent,
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
           ),
           maxLines: 3,
         ),
         const SizedBox(height: 10),
         ElevatedButton.icon(
-          onPressed: () => _addQuestion(levelIndex),
+          onPressed: () => _addQuestion(levelKey),
           icon: const Icon(Icons.add),
           label: Text(AppLocalizations.of(context)!.addQuestion),
         ),
-        ..._levels[levelIndex]['tests'].map<Widget>((test) {
-          return _buildTestQuestion(levelIndex, test);
-        }).toList(),
+        ...level['tests'].map<Widget>((test) => _buildTestQuestion(test)).toList(),
       ],
     );
   }
 
-  /// **Construir preguntas con respuestas editables**
-  Widget _buildTestQuestion(int levelIndex, Map<String, dynamic> test) {
+  Widget _buildTestQuestion(Map<String, dynamic> test) {
     return Column(
       children: [
         TextFormField(
-          controller: TextEditingController(text: test['question']),
-          onChanged: (value) => test['question'] = value,
+          controller: test['question'],
           decoration: InputDecoration(
             labelText: AppLocalizations.of(context)!.question,
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
           ),
         ),
         ...List.generate(4, (i) {
@@ -151,11 +188,10 @@ class _EditCoursePageState extends State<EditCoursePage> {
             children: [
               Expanded(
                 child: TextFormField(
-                  controller: TextEditingController(text: test['answers'][i]['text']),
-                  onChanged: (value) => test['answers'][i]['text'] = value,
+                  controller: test['answers'][i]['text'],
                   decoration: InputDecoration(
                     labelText: "${AppLocalizations.of(context)!.answer} ${i + 1}",
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
               ),
