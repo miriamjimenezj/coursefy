@@ -131,7 +131,7 @@ MaterialPageRoute(builder: (context) => const CreateCoursePage()),
 icon: const Icon(Icons.add),
 label: Text(AppLocalizations.of(context)!.createCourse),
 style: ElevatedButton.styleFrom(
-backgroundColor: Colors.pink[100],
+backgroundColor: Colors.blue[100],
 minimumSize: const Size(double.infinity, 50),
 textStyle: const TextStyle(fontWeight: FontWeight.bold),
 ),
@@ -203,7 +203,7 @@ label: AppLocalizations.of(context)!.settings,
 ),
 ],
 currentIndex: _selectedIndex,
-selectedItemColor: Colors.amber[800],
+selectedItemColor: Colors.blue[800],
 onTap: (index) {
 setState(() {
 _selectedIndex = index;

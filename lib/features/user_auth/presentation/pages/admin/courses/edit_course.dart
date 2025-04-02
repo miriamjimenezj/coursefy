@@ -22,6 +22,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late Map<String, dynamic> _levels;
+  late Map<String, dynamic> _initialLevels;
 
   @override
   void initState() {
@@ -45,6 +46,23 @@ class _EditCoursePageState extends State<EditCoursePage> {
       return MapEntry(key, {
         'content': content,
         'tests': tests,
+      });
+    });
+
+    _initialLevels = widget.levels.map((key, level) {
+      return MapEntry(key, {
+        'content': TextEditingController(text: level['content']),
+        'tests': (level['tests'] as List).map((test) {
+          return {
+            'question': TextEditingController(text: test['question']),
+            'answers': (test['answers'] as List).map((answer) {
+              return {
+                'text': TextEditingController(text: answer['text']),
+                'correct': answer['correct'],
+              };
+            }).toList(),
+          };
+        }).toList(),
       });
     });
   }
@@ -100,6 +118,25 @@ class _EditCoursePageState extends State<EditCoursePage> {
     }
   }
 
+  void _resetForm() {
+    setState(() {
+      _titleController.text = widget.currentTitle;
+      _levels.forEach((key, level) {
+        level['content'].text = _initialLevels[key]['content'].text;
+        final initialTests = _initialLevels[key]['tests'];
+        level['tests'] = initialTests.map((test) {
+          return {
+            'question': TextEditingController(text: test['question'].text),
+            'answers': test['answers'].map((a) => {
+              'text': TextEditingController(text: a['text'].text),
+              'correct': a['correct'],
+            }).toList(),
+          };
+        }).toList();
+      });
+    });
+  }
+
   void _addQuestion(String levelKey) {
     setState(() {
       _levels[levelKey]['tests'].add({
@@ -138,10 +175,20 @@ class _EditCoursePageState extends State<EditCoursePage> {
               const SizedBox(height: 20),
               ..._levels.entries.map((entry) => _buildLevelSection(entry.key, entry.value)).toList(),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _updateCourse,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                child: Text(AppLocalizations.of(context)!.save),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: _updateCourse,
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[100]),
+                    child: Text(AppLocalizations.of(context)!.save),
+                  ),
+                  ElevatedButton(
+                    onPressed: _resetForm,
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[300]),
+                    child: Text(AppLocalizations.of(context)!.reset),
+                  ),
+                ],
               ),
             ],
           ),
