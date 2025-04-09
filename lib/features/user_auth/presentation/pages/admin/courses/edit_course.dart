@@ -20,56 +20,62 @@ class EditCoursePage extends StatefulWidget {
 
 class _EditCoursePageState extends State<EditCoursePage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _titleController;
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _tagController = TextEditingController();
+  final List<String> _tags = [];
   late Map<String, dynamic> _levels;
   late Map<String, dynamic> _initialLevels;
+  int _nextLevelNumber = 0;
 
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.currentTitle);
+    _titleController.text = widget.currentTitle;
 
-    _levels = widget.levels.map((key, level) {
-      final content = TextEditingController(text: level['content']);
-      final tests = (level['tests'] as List).map((test) {
-        return {
-          'question': TextEditingController(text: test['question']),
-          'answers': (test['answers'] as List).map((answer) {
+    final sortedKeys = widget.levels.keys.toList()..sort((a, b) => a.compareTo(b));
+    _nextLevelNumber = sortedKeys.length + 1;
+
+    _levels = {
+      for (var key in sortedKeys)
+        key: {
+          'content': TextEditingController(text: widget.levels[key]['content']),
+          'tests': (widget.levels[key]['tests'] as List).map((test) {
             return {
-              'text': TextEditingController(text: answer['text']),
-              'correct': answer['correct'],
+              'question': TextEditingController(text: test['question']),
+              'answers': (test['answers'] as List).map((answer) {
+                return {
+                  'text': TextEditingController(text: answer['text']),
+                  'correct': answer['correct'],
+                };
+              }).toList(),
             };
           }).toList(),
-        };
-      }).toList();
+        }
+    };
 
-      return MapEntry(key, {
-        'content': content,
-        'tests': tests,
-      });
-    });
-
-    _initialLevels = widget.levels.map((key, level) {
-      return MapEntry(key, {
-        'content': TextEditingController(text: level['content']),
-        'tests': (level['tests'] as List).map((test) {
-          return {
-            'question': TextEditingController(text: test['question']),
-            'answers': (test['answers'] as List).map((answer) {
-              return {
-                'text': TextEditingController(text: answer['text']),
-                'correct': answer['correct'],
-              };
-            }).toList(),
-          };
-        }).toList(),
-      });
-    });
+    _initialLevels = {
+      for (var key in sortedKeys)
+        key: {
+          'content': TextEditingController(text: widget.levels[key]['content']),
+          'tests': (widget.levels[key]['tests'] as List).map((test) {
+            return {
+              'question': TextEditingController(text: test['question']),
+              'answers': (test['answers'] as List).map((answer) {
+                return {
+                  'text': TextEditingController(text: answer['text']),
+                  'correct': answer['correct'],
+                };
+              }).toList(),
+            };
+          }).toList(),
+        }
+    };
   }
 
   @override
   void dispose() {
     _titleController.dispose();
+    _tagController.dispose();
     for (var level in _levels.values) {
       level['content'].dispose();
       for (var test in level['tests']) {
@@ -104,6 +110,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
         await FirebaseFirestore.instance.collection('courses').doc(widget.courseId).update({
           'title': _titleController.text.trim(),
           'levels': levelsData,
+          'tags': _tags,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -149,6 +156,33 @@ class _EditCoursePageState extends State<EditCoursePage> {
     });
   }
 
+  void _addLevel() {
+    setState(() {
+      final levelKey = 'level$_nextLevelNumber';
+      _levels[levelKey] = {
+        'content': TextEditingController(),
+        'tests': <Map<String, dynamic>>[],
+      };
+      _nextLevelNumber++;
+    });
+  }
+
+  void _addTag() {
+    final tag = _tagController.text.trim();
+    if (tag.isNotEmpty && !_tags.contains(tag)) {
+      setState(() {
+        _tags.add(tag);
+        _tagController.clear();
+      });
+    }
+  }
+
+  void _removeTag(String tag) {
+    setState(() {
+      _tags.remove(tag);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -173,6 +207,39 @@ class _EditCoursePageState extends State<EditCoursePage> {
                 },
               ),
               const SizedBox(height: 20),
+              TextFormField(
+                controller: _tagController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.tagsLabel,
+                  hintText: AppLocalizations.of(context)!.tagsHint,
+                  border: const OutlineInputBorder(),
+                ),
+                onFieldSubmitted: (_) => _addTag(),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton.icon(
+                onPressed: _addTag,
+                icon: const Icon(Icons.add),
+                label: Text(AppLocalizations.of(context)!.addTag),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                children: _tags
+                    .map((tag) => Chip(
+                  label: Text(tag),
+                  deleteIcon: const Icon(Icons.close),
+                  onDeleted: () => _removeTag(tag),
+                ))
+                    .toList(),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: _addLevel,
+                icon: const Icon(Icons.add),
+                label: const Text("Añadir nivel"),
+              ),
+              const SizedBox(height: 10),
               ..._levels.entries.map((entry) => _buildLevelSection(entry.key, entry.value)).toList(),
               const SizedBox(height: 20),
               Row(
@@ -215,7 +282,14 @@ class _EditCoursePageState extends State<EditCoursePage> {
           icon: const Icon(Icons.add),
           label: Text(AppLocalizations.of(context)!.addQuestion),
         ),
-        ...level['tests'].map<Widget>((test) => _buildTestQuestion(test)).toList(),
+        ...level['tests']
+            .map<Widget>((test) => Column(
+          children: [
+            _buildTestQuestion(test),
+            const SizedBox(height: 32),
+          ],
+        ))
+            .toList(),
       ],
     );
   }

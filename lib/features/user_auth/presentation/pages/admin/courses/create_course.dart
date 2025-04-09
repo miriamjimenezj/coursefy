@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -13,11 +15,21 @@ class CreateCoursePage extends StatefulWidget {
 class _CreateCoursePageState extends State<CreateCoursePage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _tagController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final List<Map<String, dynamic>> _levels = List.generate(5, (_) => {
-    'content': TextEditingController(),
-    'tests': <Map<String, dynamic>>[],
-  });
+  final List<String> _tags = [];
+  final List<Map<String, dynamic>> _levels = [];
+
+  void _addLevel() {
+    setState(() {
+      _levels.add({
+        'content': TextEditingController(),
+        'file': null,
+        'fileUrl': '',
+        'tests': <Map<String, dynamic>>[],
+      });
+    });
+  }
 
   void _addQuestion(int levelIndex) {
     setState(() {
@@ -31,6 +43,44 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     });
   }
 
+  void _addTag() {
+    final tag = _tagController.text.trim();
+    if (tag.isNotEmpty && !_tags.contains(tag)) {
+      setState(() {
+        _tags.add(tag);
+        _tagController.clear();
+      });
+    }
+  }
+
+  void _removeTag(String tag) {
+    setState(() {
+      _tags.remove(tag);
+    });
+  }
+
+  Future<void> _pickFile(int index) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'txt', 'html'],
+    );
+
+    if (result != null && result.files.single.bytes != null) {
+      final file = result.files.single;
+      final fileName =
+          'level_${index + 1}_${DateTime.now().millisecondsSinceEpoch}.${file.extension}';
+
+      final ref = FirebaseStorage.instance.ref().child('course_files/$fileName');
+      await ref.putData(file.bytes!);
+      final downloadUrl = await ref.getDownloadURL();
+
+      setState(() {
+        _levels[index]['file'] = file;
+        _levels[index]['fileUrl'] = downloadUrl;
+      });
+    }
+  }
+
   Future<void> _saveCourse() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -41,6 +91,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     for (int i = 0; i < _levels.length; i++) {
       levelsData['level${i + 1}'] = {
         'content': _levels[i]['content'].text.trim(),
+        'fileUrl': _levels[i]['fileUrl'],
         'tests': _levels[i]['tests'].map((test) => {
           'question': test['question'].text.trim(),
           'answers': List.generate(4, (j) => {
@@ -55,6 +106,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
       'title': _titleController.text.trim(),
       'createdBy': userId,
       'createdAt': Timestamp.now(),
+      'tags': _tags,
       'levels': levelsData,
     });
 
@@ -89,6 +141,39 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                 },
               ),
               const SizedBox(height: 20),
+              TextFormField(
+                controller: _tagController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.tagsLabel,
+                  hintText: AppLocalizations.of(context)!.tagsHint,
+                  border: const OutlineInputBorder(),
+                ),
+                onFieldSubmitted: (_) => _addTag(),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton.icon(
+                onPressed: _addTag,
+                icon: const Icon(Icons.add),
+                label: Text(AppLocalizations.of(context)!.addTag),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                children: _tags
+                    .map((tag) => Chip(
+                  label: Text(tag),
+                  deleteIcon: const Icon(Icons.close),
+                  onDeleted: () => _removeTag(tag),
+                ))
+                    .toList(),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: _addLevel,
+                icon: const Icon(Icons.add),
+                label: const Text("Añadir nivel"),
+              ),
+              const SizedBox(height: 10),
               for (int i = 0; i < _levels.length; i++) _buildLevelSection(i),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -117,11 +202,43 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         ),
         const SizedBox(height: 10),
         ElevatedButton.icon(
+          onPressed: () async {
+            try {
+              await _pickFile(index);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(AppLocalizations.of(context)!.fileAttached)),
+              );
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(AppLocalizations.of(context)!.fileAttachError)),
+              );
+            }
+          },
+          icon: const Icon(Icons.attach_file),
+          label: Text(AppLocalizations.of(context)!.addFile),
+        ),
+        if (_levels[index]['fileUrl'] != '')
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              "Archivo adjuntado correctamente",
+              style: const TextStyle(color: Colors.green),
+            ),
+          ),
+        const SizedBox(height: 10),
+        ElevatedButton.icon(
           onPressed: () => _addQuestion(index),
           icon: const Icon(Icons.add),
           label: Text(AppLocalizations.of(context)!.addQuestion),
         ),
-        ..._levels[index]['tests'].map<Widget>((test) => _buildTestQuestion(test)).toList(),
+        ..._levels[index]['tests']
+            .map<Widget>((test) => Column(
+          children: [
+            _buildTestQuestion(test),
+            const SizedBox(height: 32),
+          ],
+        ))
+            .toList(),
       ],
     );
   }

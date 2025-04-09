@@ -50,7 +50,6 @@
   "courseNameRequired": "Course name is required.",
   "userNotLoggedIn": "User is not logged in.",
   "createCourseError": "Failed to create course. Please try again.",
-
   "courseUpdated": "Course updated successfully!",
   "errorUpdatingCourse": "Error updating the course. Please try again.",
   "editCourseInstruction": "Modify the name of the course below:",
@@ -62,5 +61,12 @@
   "question": "Question",
   "answer": "Answer",
   "courseCreated": "Course Created",
-  "reset": "Reset"
+  "reset": "Reset",
+  "addFile": "Add File",
+  "fileAttached": "File successfully attached",
+  "fileAttachError": "Error attaching file",
+  "tagsLabel": "Course tags (e.g. AI, HR...)",
+  "addTag": "Add tag",
+  "tagsHint": "Separate tags with commas",
+  "addLevel": "Add level"
 }

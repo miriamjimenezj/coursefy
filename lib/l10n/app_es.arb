@@ -64,5 +64,12 @@
   "question": "Pregunta",
   "answer": "Respuesta",
   "courseCreated": "Curso Creado",
-  "reset": "Restablecer"
+  "reset": "Restablecer",
+  "addFile": "Adjuntar archivo",
+  "fileAttached": "Archivo adjuntado correctamente",
+  "fileAttachError": "Error al adjuntar archivo",
+  "tagsLabel": "Etiquetas del curso (por ejemplo: IA, RRHH...)",
+  "addTag": "Añadir etiqueta",
+  "addLevel": "Añadir nivel",
+  "tagsHint": "Añadir etiqueta (ej: IA, RRHH...)"
 }

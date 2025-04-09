@@ -19,12 +19,14 @@ dependencies:
   cloud_firestore: ^5.6.1
   firebase_auth: ^5.4.0
   firebase_storage: ^12.4.0
+  file_picker: ^6.1.1
   google_sign_in: ^6.2.2
 
   # Otras dependencias útiles
   fluttertoast: ^8.2.10
   font_awesome_flutter: ^10.8.0
   cupertino_icons: ^1.0.8
+
 
 dev_dependencies:
   flutter_test:
