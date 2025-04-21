@@ -71,5 +71,8 @@
   "tagsLabel": "Etiquetas del curso (por ejemplo: IA, RRHH...)",
   "addTag": "Añadir etiqueta",
   "addLevel": "Añadir nivel",
-  "tagsHint": "Añadir etiqueta (ej: IA, RRHH...)"
+  "tagsHint": "Añadir etiqueta (ej: IA, RRHH...)",
+  "createdBy": "Creado por",
+  "filterByTag": "Filtrar por etiqueta",
+  "allTags": "Todas"
 }

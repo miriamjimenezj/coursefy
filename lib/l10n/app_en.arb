@@ -68,5 +68,8 @@
   "tagsLabel": "Course tags (e.g. AI, HR...)",
   "addTag": "Add tag",
   "tagsHint": "Separate tags with commas",
-  "addLevel": "Add level"
+  "addLevel": "Add level",
+  "createdBy": "Created by",
+  "filterByTag": "Filter by tag",
+  "allTags": "All"
 }

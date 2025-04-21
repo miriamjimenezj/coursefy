@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coursefy/features/user_auth/presentation/pages/login_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'profile_client.dart';
@@ -16,18 +17,112 @@ class HomeClient extends StatefulWidget {
 
 class _HomeClientState extends State<HomeClient> {
   int _selectedIndex = 1;
+  String? _selectedTag;
+  List<String> _allTags = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAllTags();
+  }
+
+  Future<void> _fetchAllTags() async {
+    final snapshot = await FirebaseFirestore.instance.collection('courses').get();
+    final Set<String> tags = {};
+    for (var doc in snapshot.docs) {
+      if (doc.data().containsKey('tags')) {
+        final List<dynamic>? courseTags = doc['tags'];
+        if (courseTags != null) {
+          tags.addAll(courseTags.map((e) => e.toString()));
+        }
+      }
+    }
+    setState(() {
+      _allTags = [''].followedBy(tags).toSet().toList(); // '' → opción "Todos"
+    });
+  }
+
+  Widget _buildCoursesList() {
+    Query query = FirebaseFirestore.instance
+        .collection('courses')
+        .orderBy('createdAt', descending: true);
+
+    if (_selectedTag != null && _selectedTag!.isNotEmpty) {
+      query = query.where('tags', arrayContains: _selectedTag);
+    }
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: query.snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Center(child: Text(AppLocalizations.of(context)!.noCourses));
+        }
+
+        final courses = snapshot.data!.docs;
+
+        return ListView.builder(
+          itemCount: courses.length,
+          itemBuilder: (context, index) {
+            final course = courses[index];
+            final courseTitle = course['title'] ?? '';
+
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ListTile(
+                title: Text(courseTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(AppLocalizations.of(context)!.createdBy),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: () {
+                  // Puedes ir a una pantalla de detalles si quieres
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterDropdown() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: DropdownButtonFormField<String>(
+        value: _selectedTag,
+        decoration: InputDecoration(
+          labelText: AppLocalizations.of(context)!.filterByTag,
+          border: const OutlineInputBorder(),
+        ),
+        items: _allTags.map((tag) {
+          return DropdownMenuItem(
+            value: tag,
+            child: Text(tag.isEmpty ? AppLocalizations.of(context)!.allTags : tag),
+          );
+        }).toList(),
+        onChanged: (value) {
+          setState(() {
+            _selectedTag = value;
+          });
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> _widgetOptions = <Widget>[
       const ProfilePage(),
-      Center(
-        child: Text(
-          AppLocalizations.of(context)!.homeClientPage,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
+      Column(
+        children: [
+          const SizedBox(height: 90),
+          _buildFilterDropdown(),
+          const SizedBox(height: 16),
+          Expanded(child: _buildCoursesList()),
+        ],
       ),
-      SettingsClientPage(onLocaleChange: widget.onLocaleChange), // ✅ Pasamos onLocaleChange
+      SettingsClientPage(onLocaleChange: widget.onLocaleChange),
     ];
 
     return Scaffold(
@@ -71,7 +166,7 @@ class _HomeClientState extends State<HomeClient> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: Colors.blue[800],
         onTap: (index) {
           setState(() {
             _selectedIndex = index;
