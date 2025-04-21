@@ -61,7 +61,6 @@
   "attachFile": "Adjuntar un archivo",
   "addQuestion": "Añadir Pregunta",
   "submitCourse": "Enviar Curso",
-  "question": "Pregunta",
   "answer": "Respuesta",
   "courseCreated": "Curso Creado",
   "reset": "Restablecer",
@@ -74,5 +73,16 @@
   "tagsHint": "Añadir etiqueta (ej: IA, RRHH...)",
   "createdBy": "Creado por",
   "filterByTag": "Filtrar por etiqueta",
-  "allTags": "Todas"
+  "allTags": "Todas",
+  "selectLevelToStart": "Por favor, selecciona el nivel para comenzar",
+  "finalTest": "Realizar prueba final",
+  "takeTest": "Realizar test",
+  "testTitle": "Test Nivel {level}",
+  "question": "Pregunta",
+  "next": "Siguiente",
+  "finish": "Finalizar",
+  "testCompleted": "Test completado",
+  "testCompletedMessage": "Has terminado el test de este nivel.",
+  "thankYouForCompleting": "¡Gracias por completar el test!",
+  "test": "Test"
 }

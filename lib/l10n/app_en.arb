@@ -58,7 +58,6 @@
   "attachFile": "Attach a file",
   "addQuestion": "Add Question",
   "submitCourse": "Submit Course",
-  "question": "Question",
   "answer": "Answer",
   "courseCreated": "Course Created",
   "reset": "Reset",
@@ -71,5 +70,16 @@
   "addLevel": "Add level",
   "createdBy": "Created by",
   "filterByTag": "Filter by tag",
-  "allTags": "All"
+  "allTags": "All",
+  "selectLevelToStart": "Please, select the level to start",
+  "finalTest": "Take Final Test",
+  "takeTest": "Take Test",
+  "testTitle": "Test Level {level}",
+  "question": "Question",
+  "next": "Next",
+  "finish": "Finish",
+  "testCompleted": "Test Completed",
+  "testCompletedMessage": "You have completed this level's test.",
+  "thankYouForCompleting": "Thank you for completing the test!",
+  "test": "Test"
 }

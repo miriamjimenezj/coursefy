@@ -5,6 +5,7 @@ import 'package:coursefy/features/user_auth/presentation/pages/login_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'profile_client.dart';
 import 'settings_client.dart';
+import 'courses/courses.dart';
 
 class HomeClient extends StatefulWidget {
   final Function(Locale) onLocaleChange;
@@ -76,7 +77,16 @@ class _HomeClientState extends State<HomeClient> {
                 subtitle: Text(AppLocalizations.of(context)!.createdBy),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
-                  // Puedes ir a una pantalla de detalles si quieres
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CoursesPage(
+                        courseId: course.id,
+                        courseTitle: course['title'] ?? '',
+                        levels: course['levels'] ?? {},
+                      ),
+                    ),
+                  );
                 },
               ),
             );
