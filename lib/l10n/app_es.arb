@@ -84,5 +84,24 @@
   "testCompleted": "Test completado",
   "testCompletedMessage": "Has terminado el test de este nivel.",
   "thankYouForCompleting": "¡Gracias por completar el test!",
-  "test": "Test"
+  "test": "Test",
+  "resultTitle": "Resultados del {level}",
+  "@resultTitle": {
+    "placeholders": {
+      "level": {}
+    }
+  },
+  "congrats": "¡Genial! Has aprobado",
+  "tryAgain": "Ups, ¡inténtalo de nuevo!",
+  "nextLevel": "Siguiente Nivel",
+  "testLevelTitle": "Test del Nivel {level}",
+  "levelGrades": "Notas del Nivel {level}",
+  "@levelGrades": {
+    "placeholders": {
+      "level": {}
+    }
+  },
+  "passedMessage": "¡Genial! ¡Has aprobado!",
+  "failedMessage": "Ups, vuelve a intentarlo",
+  "retry": "Reintentar"
 }

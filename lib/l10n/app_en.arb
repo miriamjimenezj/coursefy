@@ -81,5 +81,24 @@
   "testCompleted": "Test Completed",
   "testCompletedMessage": "You have completed this level's test.",
   "thankYouForCompleting": "Thank you for completing the test!",
-  "test": "Test"
-}
+  "test": "Test",
+  "resultTitle": "Level {level} Grades",
+  "@resultTitle": {
+    "placeholders": {
+      "level": {}
+    }
+  },
+  "congrats": "Great! You have passed!",
+  "tryAgain": "Oops! Try Again",
+  "nextLevel": "Next Level",
+  "testLevelTitle": "Test Level {level}",
+  "levelGrades": "Level {level} Grades",
+  "@levelGrades": {
+    "placeholders": {
+      "level": {}
+    }
+  },
+  "passedMessage": "Great! You have passed!",
+  "failedMessage": "Oops! Try again",
+  "retry": "Retry"
+ }
