@@ -1,31 +1,74 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'level_page.dart';
 
-class CoursesPage extends StatelessWidget {
+class CoursesPage extends StatefulWidget {
   final String courseId;
   final String courseTitle;
   final Map<String, dynamic> levels;
-  //final String levelKey;
 
   const CoursesPage({
     Key? key,
     required this.courseId,
     required this.courseTitle,
     required this.levels,
-    //required this.levelKey,
   }) : super(key: key);
 
   @override
+  State<CoursesPage> createState() => _CoursesPageState();
+}
+
+class _CoursesPageState extends State<CoursesPage> {
+  List<String> completedLevels = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProgress();
+  }
+
+  Future<void> _loadProgress() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    final progressSnapshot = await FirebaseFirestore.instance
+        .collection('course_progress')
+        .where('userId', isEqualTo: userId)
+        .where('courseId', isEqualTo: widget.courseId)
+        .limit(1)
+        .get();
+
+    if (progressSnapshot.docs.isNotEmpty) {
+      final doc = progressSnapshot.docs.first;
+      final data = doc.data();
+      final List<dynamic> levels = data['completedLevels'] ?? [];
+      setState(() {
+        completedLevels = List<String>.from(levels);
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        completedLevels = [];
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final levelKeys = levels.keys.toList()..sort();
+    final levelKeys = widget.levels.keys.toList()..sort();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(courseTitle),
+        title: Text(widget.courseTitle),
         leading: const BackButton(),
       ),
-      body: Padding(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -41,12 +84,14 @@ class CoursesPage extends StatelessWidget {
               alignment: WrapAlignment.center,
               children: List.generate(levelKeys.length, (index) {
                 final levelKey = levelKeys[index];
-                final isUnlocked = index == 0; // Solo el primero desbloqueado por ahora
+                final isUnlocked = index == 0 ||
+                    completedLevels.contains('level${index}') ||
+                    completedLevels.contains(levelKey);
 
                 return GestureDetector(
                   onTap: isUnlocked
                       ? () {
-                    final levelData = levels[levelKey];
+                    final levelData = widget.levels[levelKey];
                     final content = levelData['content'] ?? '';
                     final tests = levelData['tests'] ?? [];
 
@@ -57,7 +102,7 @@ class CoursesPage extends StatelessWidget {
                           levelName: 'Level ${levelKey.replaceAll('level', '')}',
                           content: content,
                           tests: tests,
-                          courseId: courseId,
+                          courseId: widget.courseId,
                           levelKey: levelKey,
                         ),
                       ),
