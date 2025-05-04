@@ -7,11 +7,16 @@ class LevelResultPage extends StatelessWidget {
   final double percentage;
   final bool passed;
 
+  final VoidCallback onReturnHome;
+  final VoidCallback? onNextLevel;
+
   const LevelResultPage({
     super.key,
     required this.levelTitle,
     required this.percentage,
     required this.passed,
+    required this.onReturnHome,
+    this.onNextLevel,
   });
 
   @override

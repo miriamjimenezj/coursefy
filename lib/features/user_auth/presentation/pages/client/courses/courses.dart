@@ -6,12 +6,14 @@ class CoursesPage extends StatelessWidget {
   final String courseId;
   final String courseTitle;
   final Map<String, dynamic> levels;
+  //final String levelKey;
 
   const CoursesPage({
     Key? key,
     required this.courseId,
     required this.courseTitle,
     required this.levels,
+    //required this.levelKey,
   }) : super(key: key);
 
   @override
@@ -55,6 +57,8 @@ class CoursesPage extends StatelessWidget {
                           levelName: 'Level ${levelKey.replaceAll('level', '')}',
                           content: content,
                           tests: tests,
+                          courseId: courseId,
+                          levelKey: levelKey,
                         ),
                       ),
                     );

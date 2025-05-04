@@ -6,12 +6,16 @@ class LevelPage extends StatelessWidget {
   final String levelName;
   final String content;
   final List<dynamic> tests;
+  final String courseId;
+  final String levelKey;
 
   const LevelPage({
     Key? key,
     required this.levelName,
     required this.content,
     required this.tests,
+    required this.courseId,
+    required this.levelKey,
   }) : super(key: key);
 
   @override
@@ -48,6 +52,8 @@ class LevelPage extends StatelessWidget {
                     builder: (context) => LevelTestPage(
                       levelName: levelName,
                       questions: List<Map<String, dynamic>>.from(tests),
+                      courseId: courseId,
+                      levelKey: levelKey,
                     ),
                   ),
                 );
