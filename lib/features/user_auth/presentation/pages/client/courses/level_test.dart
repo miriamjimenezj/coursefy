@@ -74,6 +74,9 @@ class _LevelTestPageState extends State<LevelTestPage> {
             passed: passed,
             onReturnHome: () => Navigator.popUntil(context, (route) => route.isFirst),
             onNextLevel: passed ? () => Navigator.pop(context) : null,
+            courseId: widget.courseId,
+            courseTitle: "Course",
+            levels: {},
           ),
         ),
       );

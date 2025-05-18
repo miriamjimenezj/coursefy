@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../home_client.dart';
+import 'courses.dart';
 
 class LevelResultPage extends StatelessWidget {
   final String levelTitle;
   final double percentage;
   final bool passed;
+  final String courseId;
+  final String courseTitle;
+  final Map<String, dynamic> levels;
 
   final VoidCallback onReturnHome;
   final VoidCallback? onNextLevel;
@@ -17,6 +21,9 @@ class LevelResultPage extends StatelessWidget {
     required this.passed,
     required this.onReturnHome,
     this.onNextLevel,
+    required this.courseId,
+    required this.courseTitle,
+    required this.levels,
   });
 
   @override
@@ -81,7 +88,16 @@ class LevelResultPage extends StatelessWidget {
                 passed
                     ? ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.pop(context); // Volver a la pantalla anterior (contenido del siguiente nivel)
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CoursesPage(
+                          courseId: courseId,
+                          courseTitle: courseTitle,
+                          levels: levels,
+                        ),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.arrow_forward),
                   label: Text(localization.nextLevel),
