@@ -33,7 +33,12 @@ class LevelResultPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Results $levelTitle'),
+        //title: Text('Results $levelTitle'),
+        title: Text(
+          levelTitle.toLowerCase() == AppLocalizations.of(context)!.finalTest.toLowerCase()
+              ? AppLocalizations.of(context)!.finalTestOnly
+              : 'Results $levelTitle',
+        ),
         leading: const BackButton(),
       ),
       body: Column(

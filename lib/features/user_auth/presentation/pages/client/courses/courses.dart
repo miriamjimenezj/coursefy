@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'level_page.dart';
+import 'level_test.dart';
 
 class CoursesPage extends StatefulWidget {
   final String courseId;
@@ -57,9 +58,37 @@ class _CoursesPageState extends State<CoursesPage> {
     }
   }
 
+  Future<void> _openFinalTest() async {
+    final courseDoc = await FirebaseFirestore.instance
+        .collection('courses')
+        .doc(widget.courseId)
+        .get();
+
+    final courseData = courseDoc.data();
+    final List<dynamic> finalTestRaw = courseData!['finalTest'];
+
+    final List<Map<String, dynamic>> finalTest = finalTestRaw.map<Map<String, dynamic>>((q) => {
+      'question': q['question'],
+      'answers': List<Map<String, dynamic>>.from(q['answers']),
+    }).toList();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LevelTestPage(
+          levelName: AppLocalizations.of(context)!.finalTest,
+          questions: finalTest,
+          courseId: widget.courseId,
+          levelKey: 'finalTest',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final levelKeys = widget.levels.keys.toList()..sort();
+    final allLevelsCompleted = completedLevels.toSet().containsAll(levelKeys.toSet());
 
     return Scaffold(
       appBar: AppBar(
@@ -85,7 +114,7 @@ class _CoursesPageState extends State<CoursesPage> {
               children: List.generate(levelKeys.length, (index) {
                 final levelKey = levelKeys[index];
                 final isUnlocked = index == 0 ||
-                    completedLevels.contains('level${index}') ||
+                    completedLevels.contains('level$index') ||
                     completedLevels.contains(levelKey);
 
                 return GestureDetector(
@@ -129,9 +158,7 @@ class _CoursesPageState extends State<CoursesPage> {
             ),
             const SizedBox(height: 32),
             ElevatedButton.icon(
-              onPressed: () {
-                // Acción del test final
-              },
+              onPressed: allLevelsCompleted ? _openFinalTest : null,
               icon: const Icon(Icons.check_circle),
               label: Text(AppLocalizations.of(context)!.finalTest),
             ),

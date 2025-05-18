@@ -78,7 +78,7 @@
   "allTags": "Todas",
   "selectLevelToStart": "Por favor, selecciona el nivel para comenzar",
   "finalTest": "Realizar prueba final",
-  "finalTestAdmin": "Prueba Final",
+  "finalTestOnly": "Prueba Final",
   "takeTest": "Realizar test",
   "testTitle": "Test Nivel {level}",
   "question": "Pregunta",
@@ -109,5 +109,10 @@
   "retry": "Reintentar",
   "levelCompleted": "Nivel completado",
   "levelUnlocked": "Nivel desbloqueado",
-  "levelLocked": "Nivel bloqueado"
+  "levelLocked": "Nivel bloqueado",
+  "coursesCompleted": "Cursos que has completado",
+  "levelsCompleted": "Niveles completados",
+  "noCoursesFound": "No se han encontrado cursos.",
+  "finalTestCompleted": "Test final completado",
+  "finalTestPending": "Test final pendiente"
 }

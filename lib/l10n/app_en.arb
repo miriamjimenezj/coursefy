@@ -75,7 +75,7 @@
   "allTags": "All",
   "selectLevelToStart": "Please, select the level to start",
   "finalTest": "Take Final Test",
-  "finalTestAdmin": "Final Test",
+  "finalTestOnly": "Final Test",
   "takeTest": "Take Test",
   "testTitle": "Test Level {level}",
   "question": "Question",
@@ -106,5 +106,10 @@
   "retry": "Retry",
   "levelCompleted": "Level completed",
   "levelUnlocked": "Level unlocked",
-  "levelLocked": "Level locked"
+  "levelLocked": "Level locked",
+  "coursesCompleted": "Courses you have completed",
+  "levelsCompleted": "levels completed",
+  "noCoursesFound": "No courses found.",
+  "finalTestCompleted": "Final test completed",
+  "finalTestPending": "Final test pending"
  }

@@ -91,7 +91,9 @@ class _LevelTestPageState extends State<LevelTestPage> {
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),
-        title: Text('${AppLocalizations.of(context)!.test} ${widget.levelName}'),
+        title: Text(widget.levelKey == 'finalTest'
+            ? AppLocalizations.of(context)!.finalTestOnly
+            : '${AppLocalizations.of(context)!.test} ${widget.levelName}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),

@@ -267,7 +267,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
               //const Divider(height: 40),
               ExpansionTile(
                 initiallyExpanded: true,
-                title: Text(AppLocalizations.of(context)!.finalTestAdmin, style: const TextStyle(fontWeight: FontWeight.bold)),
+                title: Text(AppLocalizations.of(context)!.finalTestOnly, style: const TextStyle(fontWeight: FontWeight.bold)),
                 children: [
                   ..._finalTest.map(_buildTestQuestion).toList(),
                   const SizedBox(height: 10),
