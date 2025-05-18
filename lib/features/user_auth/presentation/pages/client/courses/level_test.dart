@@ -55,14 +55,22 @@ class _LevelTestPageState extends State<LevelTestPage> {
       final passed = percentage >= 0.5;
 
       final userId = _auth.currentUser?.uid;
-      if (userId != null && passed) {
+      if (userId != null) {
         final docRef = _firestore.collection('course_progress').doc('$userId${widget.courseId}');
-        await docRef.set({
+
+        final dataToUpdate = {
           'userId': userId,
           'courseId': widget.courseId,
           'lastUpdated': FieldValue.serverTimestamp(),
-          'completedLevels': FieldValue.arrayUnion([widget.levelKey]),
-        }, SetOptions(merge: true));
+        };
+
+        if (widget.levelKey == 'finalTest') {
+          dataToUpdate['finalTestPassed'] = passed;
+        } else if (passed) {
+          dataToUpdate['completedLevels'] = FieldValue.arrayUnion([widget.levelKey]);
+        }
+
+        await docRef.set(dataToUpdate, SetOptions(merge: true));
       }
 
       Navigator.pushReplacement(

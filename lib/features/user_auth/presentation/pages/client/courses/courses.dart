@@ -24,6 +24,7 @@ class CoursesPage extends StatefulWidget {
 class _CoursesPageState extends State<CoursesPage> {
   List<String> completedLevels = [];
   bool isLoading = true;
+  bool finalTestPassed = false;
 
   @override
   void initState() {
@@ -46,6 +47,7 @@ class _CoursesPageState extends State<CoursesPage> {
       final doc = progressSnapshot.docs.first;
       final data = doc.data();
       final List<dynamic> levels = data['completedLevels'] ?? [];
+      finalTestPassed = data['finalTestPassed'] ?? false;
       setState(() {
         completedLevels = List<String>.from(levels);
         isLoading = false;
