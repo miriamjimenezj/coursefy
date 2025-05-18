@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -19,6 +20,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final List<String> _tags = [];
   final List<Map<String, dynamic>> _levels = [];
+  final List<Map<String, dynamic>> _finalTest = [];
 
   void _addLevel() {
     setState(() {
@@ -34,6 +36,18 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
   void _addQuestion(int levelIndex) {
     setState(() {
       _levels[levelIndex]['tests'].add({
+        'question': TextEditingController(),
+        'answers': List.generate(4, (_) => {
+          'text': TextEditingController(),
+          'correct': false,
+        }),
+      });
+    });
+  }
+
+  void _addFinalTestQuestion() {
+    setState(() {
+      _finalTest.add({
         'question': TextEditingController(),
         'answers': List.generate(4, (_) => {
           'text': TextEditingController(),
@@ -84,6 +98,13 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
   Future<void> _saveCourse() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (_finalTest.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Debes añadir al menos una pregunta al test final")),
+      );
+      return;
+    }
+
     final userId = _auth.currentUser?.uid;
     if (userId == null) return;
 
@@ -108,6 +129,13 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
       'createdAt': Timestamp.now(),
       'tags': _tags,
       'levels': levelsData,
+      'finalTest': _finalTest.map((test) => {
+        'question': test['question'].text.trim(),
+        'answers': List.generate(4, (j) => {
+          'text': test['answers'][j]['text'].text.trim(),
+          'correct': test['answers'][j]['correct'],
+        })
+      }).toList(),
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -159,13 +187,11 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
               const SizedBox(height: 10),
               Wrap(
                 spacing: 8,
-                children: _tags
-                    .map((tag) => Chip(
+                children: _tags.map((tag) => Chip(
                   label: Text(tag),
                   deleteIcon: const Icon(Icons.close),
                   onDeleted: () => _removeTag(tag),
-                ))
-                    .toList(),
+                )).toList(),
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
@@ -175,6 +201,21 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
               ),
               const SizedBox(height: 10),
               for (int i = 0; i < _levels.length; i++) _buildLevelSection(i),
+              const SizedBox(height: 30),
+              //Text("Test Final", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              ElevatedButton.icon(
+                onPressed: _addFinalTestQuestion,
+                icon: const Icon(Icons.add),
+                label: const Text("Añadir pregunta al test final"),
+              ),
+              const SizedBox(height: 10),
+              ..._finalTest.map((test) => Column(
+                children: [
+                  _buildTestQuestion(test),
+                  const SizedBox(height: 32),
+                ],
+              )),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _saveCourse,
@@ -220,10 +261,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         if (_levels[index]['fileUrl'] != '')
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
-            child: Text(
-              "Archivo adjuntado correctamente",
-              style: const TextStyle(color: Colors.green),
-            ),
+            child: Text("Archivo adjuntado correctamente", style: const TextStyle(color: Colors.green)),
           ),
         const SizedBox(height: 10),
         ElevatedButton.icon(
@@ -231,14 +269,12 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           icon: const Icon(Icons.add),
           label: Text(AppLocalizations.of(context)!.addQuestion),
         ),
-        ..._levels[index]['tests']
-            .map<Widget>((test) => Column(
+        ..._levels[index]['tests'].map<Widget>((test) => Column(
           children: [
             _buildTestQuestion(test),
             const SizedBox(height: 32),
           ],
-        ))
-            .toList(),
+        )).toList(),
       ],
     );
   }

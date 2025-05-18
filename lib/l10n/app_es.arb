@@ -35,6 +35,8 @@
   "deleteAccountTitle": "Eliminar cuenta",
   "deleteAccountMessage": "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.",
   "deleteAccountError": "No se pudo eliminar la cuenta. Inténtalo de nuevo.",
+  "deleteCourseTitle": "Eliminar curso",
+  "deleteCourseMessage": "¿Estás seguro de que quieres eliminar este curso? Esta acción no se puede deshacer.",
   "ok": "OK",
   "errorTitle": "Error",
 
@@ -76,6 +78,7 @@
   "allTags": "Todas",
   "selectLevelToStart": "Por favor, selecciona el nivel para comenzar",
   "finalTest": "Realizar prueba final",
+  "finalTestAdmin": "Prueba Final",
   "takeTest": "Realizar test",
   "testTitle": "Test Nivel {level}",
   "question": "Pregunta",

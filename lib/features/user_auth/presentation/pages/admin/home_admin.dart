@@ -29,8 +29,8 @@ void _confirmDeleteCourse(String courseId) {
 showDialog(
 context: context,
 builder: (context) => AlertDialog(
-title: Text(AppLocalizations.of(context)!.deleteAccountTitle),
-content: Text(AppLocalizations.of(context)!.deleteAccountMessage),
+  title: Text(AppLocalizations.of(context)!.deleteCourseTitle),
+  content: Text(AppLocalizations.of(context)!.deleteCourseMessage),
 actions: [
 TextButton(
 onPressed: () => Navigator.pop(context),
@@ -98,6 +98,8 @@ builder: (context) => EditCoursePage(
 courseId: course.id,
 currentTitle: courseName,
 levels: levels,
+  finalTest: courseData['finalTest'] ?? {},
+  tags: courseData['tags'],
 ),
 ),
 );
