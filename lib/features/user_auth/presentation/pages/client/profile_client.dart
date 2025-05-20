@@ -40,6 +40,32 @@ class ProfilePage extends StatelessWidget {
     return result;
   }
 
+  Future<List<String>> _fetchUnlockedBadges(String userId) async {
+    final progressSnapshot = await FirebaseFirestore.instance
+        .collection('course_progress')
+        .where('userId', isEqualTo: userId)
+        .get();
+
+    final Set<String> badges = {};
+
+    for (var doc in progressSnapshot.docs) {
+      final data = doc.data();
+      final List<dynamic> badgeList = data['badges'] ?? [];
+      badges.addAll(List<String>.from(badgeList));
+    }
+
+    return badges.toList();
+  }
+
+  Future<Map<String, dynamic>> _loadProfileData(String userId) async {
+    final courseProgress = await _fetchCourseProgress(userId);
+    final badges = await _fetchUnlockedBadges(userId);
+    return {
+      'courses': courseProgress,
+      'badges': badges,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -49,17 +75,39 @@ class ProfilePage extends StatelessWidget {
       return const Center(child: Text("Not logged in"));
     }
 
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _fetchCourseProgress(user.uid),
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _loadProfileData(user.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        if (!snapshot.hasData || (snapshot.data?['courses'] as List).isEmpty) {
           return Center(child: Text(local.noCoursesFound));
         }
 
-        final courses = snapshot.data!;
+        final courses = snapshot.data!['courses'] as List<Map<String, dynamic>>;
+        final unlockedBadges = snapshot.data!['badges'] as List<String>;
+
+        final allBadgeIds = [
+          'badge_first_course',
+          'badge_5_courses',
+          'badge_10_courses',
+          'badge_perfect_score',
+        ];
+
+        final badgeIcons = {
+          'badge_first_course': Icons.emoji_events,
+          'badge_5_courses': Icons.star,
+          'badge_10_courses': Icons.workspace_premium,
+          'badge_perfect_score': Icons.grade,
+        };
+
+        final badgeLabels = {
+          'badge_first_course': '1 Curso',
+          'badge_5_courses': '5 Cursos',
+          'badge_10_courses': '10 Cursos',
+          'badge_perfect_score': '100%',
+        };
 
         return Padding(
           padding: const EdgeInsets.all(20.0),
@@ -73,6 +121,39 @@ class ProfilePage extends StatelessWidget {
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Text(local.welcome, style: const TextStyle(fontSize: 16)),
+              const SizedBox(height: 24),
+              ExpansionTile(
+                initiallyExpanded: true,
+                leading: const Icon(Icons.emoji_events),
+                title: Text(local.badgesGallery, style: const TextStyle(fontWeight: FontWeight.bold)),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
+                      alignment: WrapAlignment.center,
+                      children: allBadgeIds.map((badgeId) {
+                        final isUnlocked = unlockedBadges.contains(badgeId);
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isUnlocked ? badgeIcons[badgeId]! : Icons.lock_outline,
+                              color: isUnlocked ? Colors.amber[800] : Colors.grey,
+                              size: 40,
+                            ),
+                            Text(
+                              badgeLabels[badgeId]!,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 24),
               Text(local.coursesCompleted, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
               const SizedBox(height: 16),

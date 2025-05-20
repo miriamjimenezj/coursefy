@@ -57,6 +57,7 @@ class _LevelTestPageState extends State<LevelTestPage> {
       final passed = percentage >= 0.5;
 
       final userId = _auth.currentUser?.uid;
+      bool showBadgePopup = false;
       if (userId != null) {
         final docRef = _firestore.collection('course_progress').doc('$userId${widget.courseId}');
 
@@ -73,6 +74,28 @@ class _LevelTestPageState extends State<LevelTestPage> {
         }
 
         await docRef.set(dataToUpdate, SetOptions(merge: true));
+
+        // INSIGNIAS
+        if (passed && widget.levelKey == 'finalTest') {
+          final docSnap = await docRef.get();
+          final existingBadges = List<String>.from(docSnap.data()?['badges'] ?? []);
+          final newBadges = <String>[];
+
+          if (!existingBadges.contains('badge_first_course')) {
+            newBadges.add('badge_first_course');
+          }
+
+          if (percentage == 1.0 && !existingBadges.contains('badge_100_score')) {
+            newBadges.add('badge_100_score');
+          }
+
+          if (newBadges.isNotEmpty) {
+            await docRef.set({
+              'badges': FieldValue.arrayUnion(newBadges),
+            }, SetOptions(merge: true));
+            showBadgePopup = true; // <- ⬅️ Activar popup
+          }
+        }
       }
 
       final List<Map<String, dynamic>> userAnswers = [];
@@ -97,6 +120,29 @@ class _LevelTestPageState extends State<LevelTestPage> {
           .set({
         'userAnswers': userAnswers,
       }, SetOptions(merge: true));
+
+      if (showBadgePopup) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("🎉 Insignia desbloqueada"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.emoji_events, size: 60, color: Colors.amber),
+                SizedBox(height: 12),
+                Text("¡Has conseguido una nueva insignia por tu progreso!"),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
 
       Navigator.pushReplacement(
         context,

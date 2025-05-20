@@ -118,5 +118,6 @@
   "seeResults": "Ver resultados",
   "noAnswersFound": "No se han encontrado las respuestas",
   "course": "Curso",
-  "usersRegisteredToYourCourses": "Usuarios registrados a tus cursos"
+  "usersRegisteredToYourCourses": "Usuarios registrados a tus cursos",
+  "badgesGallery": "Galería de insignias"
 }

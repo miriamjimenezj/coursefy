@@ -115,5 +115,6 @@
   "seeResults": "See results",
   "noAnswersFound": "No answers found",
   "course": "Course",
-  "usersRegisteredToYourCourses": "Users registered to your courses"
- }
+  "usersRegisteredToYourCourses": "Users registered to your courses",
+  "badgesGallery": "Badges Gallery"
+}
