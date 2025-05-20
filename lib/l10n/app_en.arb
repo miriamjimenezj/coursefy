@@ -113,5 +113,7 @@
   "finalTestCompleted": "Final test completed",
   "finalTestPending": "Final test pending",
   "seeResults": "See results",
-  "noAnswersFound": "No answers found"
+  "noAnswersFound": "No answers found",
+  "course": "Course",
+  "usersRegisteredToYourCourses": "Users registered to your courses"
  }
