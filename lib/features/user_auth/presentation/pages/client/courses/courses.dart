@@ -82,6 +82,7 @@ class _CoursesPageState extends State<CoursesPage> {
           questions: finalTest,
           courseId: widget.courseId,
           levelKey: 'finalTest',
+          userAnswers: [],
         ),
       ),
     );
@@ -135,6 +136,7 @@ class _CoursesPageState extends State<CoursesPage> {
                           tests: tests,
                           courseId: widget.courseId,
                           levelKey: levelKey,
+                          userAnswers: [],
                         ),
                       ),
                     );

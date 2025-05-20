@@ -110,9 +110,11 @@
   "levelCompleted": "Nivel completado",
   "levelUnlocked": "Nivel desbloqueado",
   "levelLocked": "Nivel bloqueado",
-  "coursesCompleted": "Cursos que has completado",
+  "coursesCompleted": "Progreso de tus cursos",
   "levelsCompleted": "Niveles completados",
   "noCoursesFound": "No se han encontrado cursos.",
   "finalTestCompleted": "Test final completado",
-  "finalTestPending": "Test final pendiente"
+  "finalTestPending": "Test final pendiente",
+  "seeResults": "Ver resultados",
+  "noAnswersFound": "No se han encontrado las respuestas"
 }

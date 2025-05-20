@@ -10,6 +10,7 @@ class LevelTestPage extends StatefulWidget {
   final List<Map<String, dynamic>> questions;
   final String courseId;
   final String levelKey;
+  final List<int?> userAnswers;
 
   const LevelTestPage({
     Key? key,
@@ -17,6 +18,7 @@ class LevelTestPage extends StatefulWidget {
     required this.questions,
     required this.courseId,
     required this.levelKey,
+    required this.userAnswers,
   }) : super(key: key);
 
   @override
@@ -73,6 +75,29 @@ class _LevelTestPageState extends State<LevelTestPage> {
         await docRef.set(dataToUpdate, SetOptions(merge: true));
       }
 
+      final List<Map<String, dynamic>> userAnswers = [];
+
+      for (int i = 0; i < widget.questions.length; i++) {
+        final question = widget.questions[i];
+        final selected = _selectedAnswers[i];
+        final answers = List<Map<String, dynamic>>.from(question['answers']);
+
+        userAnswers.add({
+          'question': question['question'],
+          'answers': List.generate(4, (j) => {
+            'text': answers[j]['text'],
+            'selected': selected == j,
+          }),
+        });
+      }
+
+      await FirebaseFirestore.instance
+          .collection('course_progress')
+          .doc('$userId${widget.courseId}')
+          .set({
+        'userAnswers': userAnswers,
+      }, SetOptions(merge: true));
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -85,6 +110,7 @@ class _LevelTestPageState extends State<LevelTestPage> {
             courseId: widget.courseId,
             courseTitle: "Course",
             levels: {},
+            userAnswers: _selectedAnswers,
           ),
         ),
       );

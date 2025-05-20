@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../home_client.dart';
-import 'courses.dart';
+import 'test_review.dart';
 
 class LevelResultPage extends StatelessWidget {
   final String levelTitle;
@@ -10,6 +10,7 @@ class LevelResultPage extends StatelessWidget {
   final String courseId;
   final String courseTitle;
   final Map<String, dynamic> levels;
+  final List<int?> userAnswers;
 
   final VoidCallback onReturnHome;
   final VoidCallback? onNextLevel;
@@ -24,6 +25,7 @@ class LevelResultPage extends StatelessWidget {
     required this.courseId,
     required this.courseTitle,
     required this.levels,
+    required this.userAnswers,
   });
 
   @override
@@ -90,29 +92,25 @@ class LevelResultPage extends StatelessWidget {
                     );
                   },
                 ),
-                passed
-                    ? ElevatedButton.icon(
+                ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => CoursesPage(
-                          courseId: courseId,
-                          courseTitle: courseTitle,
-                          levels: levels,
-                        ),
+                        builder: (context) => TestReviewPage(courseId: courseId),
                       ),
                     );
                   },
-                  icon: const Icon(Icons.arrow_forward),
-                  label: Text(localization.nextLevel),
-                )
-                    : IconButton(
-                  icon: const Icon(Icons.refresh, size: 32),
-                  onPressed: () {
-                    Navigator.pop(context); // Volver al contenido del nivel
-                  },
+                  icon: const Icon(Icons.visibility),
+                  label: Text(localization.seeResults),
                 ),
+                if (!passed)
+                  IconButton(
+                    icon: const Icon(Icons.refresh, size: 32),
+                    onPressed: () {
+                      Navigator.pop(context); // Retry test
+                    },
+                  ),
               ],
             ),
           ),

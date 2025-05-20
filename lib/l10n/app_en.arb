@@ -107,9 +107,11 @@
   "levelCompleted": "Level completed",
   "levelUnlocked": "Level unlocked",
   "levelLocked": "Level locked",
-  "coursesCompleted": "Courses you have completed",
+  "coursesCompleted": "Your courses progress",
   "levelsCompleted": "levels completed",
   "noCoursesFound": "No courses found.",
   "finalTestCompleted": "Final test completed",
-  "finalTestPending": "Final test pending"
+  "finalTestPending": "Final test pending",
+  "seeResults": "See results",
+  "noAnswersFound": "No answers found"
  }

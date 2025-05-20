@@ -66,6 +66,7 @@ class ProfilePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(height: 35),
               const Icon(Icons.account_circle, size: 100),
               const SizedBox(height: 12),
               Text('${user.email ?? "username"}',
