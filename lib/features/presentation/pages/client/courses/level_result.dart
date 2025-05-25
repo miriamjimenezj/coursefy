@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../home_client.dart';
 import 'test_review.dart';
+import 'courses.dart';
 
 class LevelResultPage extends StatelessWidget {
   final String levelTitle;
@@ -11,6 +12,7 @@ class LevelResultPage extends StatelessWidget {
   final String courseTitle;
   final Map<String, dynamic> levels;
   final List<int?> userAnswers;
+  final List<String> newBadges;
 
   final VoidCallback onReturnHome;
   final VoidCallback? onNextLevel;
@@ -26,6 +28,7 @@ class LevelResultPage extends StatelessWidget {
     required this.courseTitle,
     required this.levels,
     required this.userAnswers,
+    this.newBadges = const [],
   });
 
   @override
@@ -104,6 +107,24 @@ class LevelResultPage extends StatelessWidget {
                   icon: const Icon(Icons.visibility),
                   label: Text(localization.seeResults),
                 ),
+                if (passed)
+                  IconButton(
+                    icon: const Icon(Icons.arrow_forward, size: 32),
+                    tooltip: localization.nextLevel, // para accesibilidad
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CoursesPage(
+                            courseId: courseId,
+                            courseTitle: courseTitle,
+                            // No pases levels directamente, deja que CoursesPage lo cargue de Firestore
+                            //levels: const {}, // o quítalo si tu constructor lo permite
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 if (!passed)
                   IconButton(
                     icon: const Icon(Icons.refresh, size: 32),

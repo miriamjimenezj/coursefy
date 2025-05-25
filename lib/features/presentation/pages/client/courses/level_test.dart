@@ -57,7 +57,7 @@ class _LevelTestPageState extends State<LevelTestPage> {
       final passed = percentage >= 0.5;
 
       final userId = _auth.currentUser?.uid;
-      bool showBadgePopup = false;
+      List<String> newBadges = [];
       if (userId != null) {
         final docRef = _firestore.collection('course_progress').doc('$userId${widget.courseId}');
 
@@ -75,29 +75,75 @@ class _LevelTestPageState extends State<LevelTestPage> {
 
         await docRef.set(dataToUpdate, SetOptions(merge: true));
 
-        // INSIGNIAS
+        // ----- GESTIÓN DE INSIGNIAS EN USERS -----
         if (passed && widget.levelKey == 'finalTest') {
-          final docSnap = await docRef.get();
-          final existingBadges = List<String>.from(docSnap.data()?['badges'] ?? []);
-          final newBadges = <String>[];
+          final userDocRef = _firestore.collection('users').doc(userId);
 
-          if (!existingBadges.contains('badge_first_course')) {
-            newBadges.add('badge_first_course');
+          // Leer datos del usuario (cursos completados y badges)
+          final userSnap = await userDocRef.get();
+          final List<dynamic> userCompletedCourses = userSnap.data()?['completedCourses'] ?? [];
+          final List<dynamic> userBadges = userSnap.data()?['badges'] ?? [];
+
+          // Añadir el curso si no estaba
+          List<String> completedCourses = List<String>.from(userCompletedCourses);
+          if (!completedCourses.contains(widget.courseId)) {
+            completedCourses.add(widget.courseId);
+            await userDocRef.update({'completedCourses': completedCourses});
           }
 
-          if (percentage == 1.0 && !existingBadges.contains('badge_100_score')) {
+          final int totalCompleted = completedCourses.length;
+
+          // Badge: Primer curso completado
+          if (!userBadges.contains('badge_first_course') && totalCompleted >= 1) {
+            newBadges.add('badge_first_course');
+          }
+          // Badge: 5 cursos completados
+          if (!userBadges.contains('badge_5_courses') && totalCompleted >= 5) {
+            newBadges.add('badge_5_courses');
+          }
+          // Badge: 10 cursos completados
+          if (!userBadges.contains('badge_10_courses') && totalCompleted >= 10) {
+            newBadges.add('badge_10_courses');
+          }
+          // Badge: Test final con 100%
+          if (!userBadges.contains('badge_100_score') && percentage == 1.0) {
             newBadges.add('badge_100_score');
           }
 
+          // Guardar badges si hay nuevas
           if (newBadges.isNotEmpty) {
-            await docRef.set({
+            await userDocRef.update({
               'badges': FieldValue.arrayUnion(newBadges),
-            }, SetOptions(merge: true));
-            showBadgePopup = true; // <- ⬅️ Activar popup
+            });
+
+            // ALERT SOLO SI HAY NUEVAS INSIGNIAS
+            await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text(AppLocalizations.of(context)!.congrats),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.emoji_events, size: 60, color: Colors.amber),
+                    const SizedBox(height: 12),
+                    Text(AppLocalizations.of(context)!.badgeUnlocked),
+                    for (final badge in newBadges)
+                      Text('• $badge', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text("OK"),
+                  ),
+                ],
+              ),
+            );
           }
         }
       }
 
+      // Guardar respuestas del usuario en el progreso (igual que antes)
       final List<Map<String, dynamic>> userAnswers = [];
 
       for (int i = 0; i < widget.questions.length; i++) {
@@ -121,29 +167,7 @@ class _LevelTestPageState extends State<LevelTestPage> {
         'userAnswers': userAnswers,
       }, SetOptions(merge: true));
 
-      if (showBadgePopup) {
-        await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text("🎉 Insignia desbloqueada"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.emoji_events, size: 60, color: Colors.amber),
-                SizedBox(height: 12),
-                Text("¡Has conseguido una nueva insignia por tu progreso!"),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text("OK"),
-              ),
-            ],
-          ),
-        );
-      }
-
+      // Al finalizar, pasa la lista de nuevas insignias a LevelResultPage
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -157,6 +181,7 @@ class _LevelTestPageState extends State<LevelTestPage> {
             courseTitle: "Course",
             levels: {},
             userAnswers: _selectedAnswers,
+            newBadges: newBadges, // <-- IMPORTANTE
           ),
         ),
       );

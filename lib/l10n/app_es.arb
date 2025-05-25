@@ -119,5 +119,17 @@
   "noAnswersFound": "No se han encontrado las respuestas",
   "course": "Curso",
   "usersRegisteredToYourCourses": "Usuarios registrados a tus cursos",
-  "badgesGallery": "Galería de insignias"
+  "badgesGallery": "Galería de insignias",
+  "badgeUnlocked": "Insignia Desbloqueada",
+  "changeEmail": "Cambiar correo",
+  "changePassword": "Cambiar contraseña",
+  "newEmail": "Nuevo correo",
+  "newPassword": "Nueva contraseña",
+  "emailUpdatedSuccessfully": "Correo actualizado correctamente.",
+  "passwordUpdatedSuccessfully": "Contraseña actualizada correctamente.",
+  "changeEmailError": "No se pudo actualizar el correo. Inténtalo de nuevo.",
+  "changePasswordError": "No se pudo actualizar la contraseña. Inténtalo de nuevo.",
+  "success": "Éxito",
+  "currentPassword": "Contraseña Actual",
+  "emailVerificationSent": "Email enviado"
 }

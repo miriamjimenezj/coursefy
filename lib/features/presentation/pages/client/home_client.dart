@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:coursefy/features/user_auth/presentation/pages/login_page.dart';
+import 'package:coursefy/features/presentation/pages/login_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'profile_client.dart';
 import 'settings_client.dart';
@@ -83,7 +83,7 @@ class _HomeClientState extends State<HomeClient> {
                       builder: (context) => CoursesPage(
                         courseId: course.id,
                         courseTitle: course['title'] ?? '',
-                        levels: course['levels'] ?? {},
+                        //levels: course['levels'] ?? {},
                         //levelKey: key,
                       ),
                     ),

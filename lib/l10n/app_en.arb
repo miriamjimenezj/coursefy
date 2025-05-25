@@ -116,5 +116,17 @@
   "noAnswersFound": "No answers found",
   "course": "Course",
   "usersRegisteredToYourCourses": "Users registered to your courses",
-  "badgesGallery": "Badges Gallery"
+  "badgesGallery": "Badges Gallery",
+  "badgeUnlocked": "Unlocked Badge",
+  "changeEmail": "Change Email",
+  "changePassword": "Change Password",
+  "newEmail": "New Email",
+  "newPassword": "New Password",
+  "emailUpdatedSuccessfully": "Email updated successfully.",
+  "passwordUpdatedSuccessfully": "Password updated successfully.",
+  "changeEmailError": "Failed to update email. Please try again.",
+  "changePasswordError": "Failed to update password. Please try again.",
+  "success": "Success",
+  "currentPassword": "Current password",
+  "emailVerificationSent": "email sent"
 }

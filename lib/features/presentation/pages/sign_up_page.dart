@@ -2,10 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coursefy/features/user_auth/firebase_auth/firebase_auth_services.dart';
-import 'package:coursefy/features/user_auth/presentation/pages/login_page.dart';
-import 'package:coursefy/features/user_auth/presentation/widgets/form_container_widget.dart';
-import 'package:coursefy/features/user_auth/presentation/pages/admin/home_admin.dart';
-import 'package:coursefy/features/user_auth/presentation/pages/client/home_client.dart';
+import 'package:coursefy/features/presentation/pages/login_page.dart';
+import 'package:coursefy/features/presentation/widgets/form_container_widget.dart';
+import 'package:coursefy/features/presentation/pages/admin/home_admin.dart';
+import 'package:coursefy/features/presentation/pages/client/home_client.dart';
 
 class SignUpPage extends StatefulWidget {
   final Function(Locale) onLocaleChange;
@@ -17,7 +17,7 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final FirebaseAuthService _auth = FirebaseAuthService();
+  //final FirebaseAuthService _auth = FirebaseAuthService();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 

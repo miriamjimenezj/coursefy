@@ -69,56 +69,68 @@ class ProfilePage extends StatelessWidget {
         final data = snapshot.data ?? [];
 
         return Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(height: 35),
               const Icon(Icons.account_circle, size: 100),
               const SizedBox(height: 12),
               Text(
-                user.email ?? "admin",
+                '${user.email ?? "username"}',
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Text(local.welcome, style: const TextStyle(fontSize: 16)),
+              Text(local.welcome, style: const TextStyle(fontSize: 16), textAlign: TextAlign.center),
               const SizedBox(height: 24),
               Text(
                 local.usersRegisteredToYourCourses,
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              if (data.isEmpty)
-                Expanded(child: Center(child: Text(local.noCoursesFound)))
-              else
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: data.length,
-                    itemBuilder: (context, index) {
-                      final item = data[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        child: ListTile(
-                          title: Text(item['email'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("${local.course}: ${item['course']}"),
-                              Text("${item['completed']} / ${item['total']} ${local.levelsCompleted}"),
-                              const SizedBox(height: 6),
-                              LinearProgressIndicator(value: (item['completed'] / item['total']).clamp(0.0, 1.0)),
-                              const SizedBox(height: 6),
-                              Text(
-                                item['finalTestPassed']
-                                    ? "✅ ${local.finalTestCompleted}"
-                                    : "❌ ${local.finalTestPending}",
-                              ),
-                            ],
+              Expanded(
+                child: data.isEmpty
+                    ? Center(child: Text(local.noCoursesFound))
+                    : ListView.builder(
+                  itemCount: data.length,
+                  itemBuilder: (context, index) {
+                    final item = data[index];
+                    return Center( // Centrar la tarjeta
+                      child: Container(
+                        constraints: const BoxConstraints(maxWidth: 420),
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: ListTile(
+                            title: Text(
+                              item['email'],
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("${local.course}: ${item['course']}"),
+                                Text("${item['completed']} / ${item['total']} ${local.levelsCompleted}"),
+                                const SizedBox(height: 6),
+                                LinearProgressIndicator(
+                                  value: (item['completed'] / item['total']).clamp(0.0, 1.0),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  item['finalTestPassed']
+                                      ? "✅ ${local.finalTestCompleted}"
+                                      : "❌ ${local.finalTestPending}",
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
+              ),
             ],
           ),
         );

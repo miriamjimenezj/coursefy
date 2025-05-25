@@ -8,13 +8,11 @@ import 'level_test.dart';
 class CoursesPage extends StatefulWidget {
   final String courseId;
   final String courseTitle;
-  final Map<String, dynamic> levels;
 
   const CoursesPage({
     Key? key,
     required this.courseId,
     required this.courseTitle,
-    required this.levels,
   }) : super(key: key);
 
   @override
@@ -25,17 +23,23 @@ class _CoursesPageState extends State<CoursesPage> {
   List<String> completedLevels = [];
   bool isLoading = true;
   bool finalTestPassed = false;
+  Map<String, dynamic> levels = {};
 
   @override
   void initState() {
     super.initState();
-    _loadProgress();
+    _fetchData();
   }
 
-  Future<void> _loadProgress() async {
+  Future<void> _fetchData() async {
+    setState(() {
+      isLoading = true;
+    });
+
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) return;
 
+    // Traer progreso del usuario
     final progressSnapshot = await FirebaseFirestore.instance
         .collection('course_progress')
         .where('userId', isEqualTo: userId)
@@ -43,18 +47,30 @@ class _CoursesPageState extends State<CoursesPage> {
         .limit(1)
         .get();
 
+    // Traer los datos del curso y sus niveles
+    final courseDoc = await FirebaseFirestore.instance
+        .collection('courses')
+        .doc(widget.courseId)
+        .get();
+    final courseData = courseDoc.data();
+
+    final Map<String, dynamic> loadedLevels = courseData?['levels'] ?? {};
+
     if (progressSnapshot.docs.isNotEmpty) {
       final doc = progressSnapshot.docs.first;
       final data = doc.data();
-      final List<dynamic> levels = data['completedLevels'] ?? [];
+      final List<dynamic> levelsCompleted = data['completedLevels'] ?? [];
       finalTestPassed = data['finalTestPassed'] ?? false;
+
       setState(() {
-        completedLevels = List<String>.from(levels);
+        completedLevels = List<String>.from(levelsCompleted);
+        levels = loadedLevels;
         isLoading = false;
       });
     } else {
       setState(() {
         completedLevels = [];
+        levels = loadedLevels;
         isLoading = false;
       });
     }
@@ -90,8 +106,10 @@ class _CoursesPageState extends State<CoursesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final levelKeys = widget.levels.keys.toList()..sort();
-    final allLevelsCompleted = completedLevels.toSet().containsAll(levelKeys.toSet());
+    final levelKeys = levels.keys.toList()..sort();
+    final allLevelsCompleted = levelKeys.isEmpty
+        ? false
+        : completedLevels.toSet().containsAll(levelKeys.toSet());
 
     return Scaffold(
       appBar: AppBar(
@@ -108,6 +126,7 @@ class _CoursesPageState extends State<CoursesPage> {
             Text(
               AppLocalizations.of(context)!.selectLevelToStart,
               style: const TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             Wrap(
@@ -123,7 +142,7 @@ class _CoursesPageState extends State<CoursesPage> {
                 return GestureDetector(
                   onTap: isUnlocked
                       ? () {
-                    final levelData = widget.levels[levelKey];
+                    final levelData = levels[levelKey];
                     final content = levelData['content'] ?? '';
                     final tests = levelData['tests'] ?? [];
 

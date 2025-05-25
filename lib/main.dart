@@ -5,14 +5,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
 import 'package:coursefy/features/app/splash_screen/splash_screen.dart';
-import 'package:coursefy/features/user_auth/presentation/pages/login_page.dart';
-import 'package:coursefy/features/user_auth/presentation/pages/sign_up_page.dart';
-import 'package:coursefy/features/user_auth/presentation/pages/admin/home_admin.dart';
-import 'package:coursefy/features/user_auth/presentation/pages/client/home_client.dart';
-import 'package:coursefy/features/user_auth/presentation/pages/admin/settings_admin.dart';
-import 'package:coursefy/features/user_auth/presentation/pages/client/settings_client.dart';
+import 'package:coursefy/features/presentation/pages/login_page.dart';
+import 'package:coursefy/features/presentation/pages/sign_up_page.dart';
+import 'package:coursefy/features/presentation/pages/admin/home_admin.dart';
+import 'package:coursefy/features/presentation/pages/client/home_client.dart';
+import 'package:coursefy/features/presentation/pages/admin/settings_admin.dart';
+import 'package:coursefy/features/presentation/pages/client/settings_client.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
