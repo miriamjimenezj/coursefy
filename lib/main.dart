@@ -5,6 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'features/presentation/widgets/themeNotifier.dart';
+
 import 'package:coursefy/features/app/splash_screen/splash_screen.dart';
 import 'package:coursefy/features/presentation/pages/login_page.dart';
 import 'package:coursefy/features/presentation/pages/sign_up_page.dart';
@@ -33,7 +36,12 @@ Future<void> main() async {
     await Firebase.initializeApp();
   }
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeNotifier(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -79,6 +87,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Coursefy',
@@ -93,6 +103,11 @@ class _MyAppState extends State<MyApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      // Cambios aquí 👇
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: themeNotifier.isDark ? ThemeMode.dark : ThemeMode.light,
+      // 👆
       home: FutureBuilder<Widget>(
         future: _getHomeScreen(),
         builder: (context, snapshot) {

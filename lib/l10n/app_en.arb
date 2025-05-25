@@ -128,5 +128,5 @@
   "changePasswordError": "Failed to update password. Please try again.",
   "success": "Success",
   "currentPassword": "Current password",
-  "emailVerificationSent": "email sent"
+  "theme": "Theme"
 }

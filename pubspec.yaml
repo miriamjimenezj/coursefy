@@ -21,6 +21,7 @@ dependencies:
   firebase_storage: ^12.4.0
   file_picker: ^6.1.1
   google_sign_in: ^6.2.2
+  provider: ^6.1.5
 
   # Otras dependencias útiles
   fluttertoast: ^8.2.10

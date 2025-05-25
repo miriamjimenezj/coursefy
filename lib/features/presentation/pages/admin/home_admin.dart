@@ -79,7 +79,7 @@ return Container(
 margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
 decoration: BoxDecoration(
-color: Colors.grey[200],
+color: Colors.blueAccent[100],
 borderRadius: BorderRadius.circular(10),
 ),
 child: Row(
@@ -133,7 +133,7 @@ MaterialPageRoute(builder: (context) => const CreateCoursePage()),
 icon: const Icon(Icons.add),
 label: Text(AppLocalizations.of(context)!.createCourse),
 style: ElevatedButton.styleFrom(
-backgroundColor: Colors.blue[100],
+backgroundColor: Colors.purple[200],
 minimumSize: const Size(double.infinity, 50),
 textStyle: const TextStyle(fontWeight: FontWeight.bold),
 ),

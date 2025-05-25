@@ -6,10 +6,10 @@ import 'package:coursefy/features/presentation/pages/login_page.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/themeNotifier.dart';
 
-class SettingsClientPage extends StatelessWidget {
+class SettingsAdminPage extends StatelessWidget {
   final Function(Locale) onLocaleChange;
 
-  const SettingsClientPage({super.key, required this.onLocaleChange});
+  const SettingsAdminPage({super.key, required this.onLocaleChange});
 
   Future<void> _deleteAccount(BuildContext context) async {
     final user = FirebaseAuth.instance.currentUser;
@@ -21,8 +21,7 @@ class SettingsClientPage extends StatelessWidget {
         await user.delete();
         await FirebaseAuth.instance.signOut();
       } catch (e) {
-        _showErrorDialog(context, AppLocalizations.of(context)!.errorTitle,
-            AppLocalizations.of(context)!.deleteAccountError);
+        _showErrorDialog(context, AppLocalizations.of(context)!.errorTitle, AppLocalizations.of(context)!.deleteAccountError);
       }
     }
   }
@@ -44,15 +43,11 @@ class SettingsClientPage extends StatelessWidget {
               _deleteAccount(context);
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      LoginPage(onLocaleChange: onLocaleChange),
-                ),
+                MaterialPageRoute(builder: (context) => LoginPage(onLocaleChange: onLocaleChange)),
                     (route) => false,
               );
             },
-            child: Text(AppLocalizations.of(context)!.delete,
-                style: const TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -89,14 +84,12 @@ class SettingsClientPage extends StatelessWidget {
             TextField(
               controller: _currentPasswordController,
               obscureText: true,
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.currentPassword),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.currentPassword),
             ),
             TextField(
               controller: _newPasswordController,
               obscureText: true,
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.newPassword),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.newPassword),
             ),
           ],
         ),
@@ -111,13 +104,9 @@ class SettingsClientPage extends StatelessWidget {
               final newPassword = _newPasswordController.text.trim();
               final user = FirebaseAuth.instance.currentUser;
 
-              if (currentPassword.isNotEmpty &&
-                  newPassword.isNotEmpty &&
-                  user != null &&
-                  user.email != null) {
+              if (currentPassword.isNotEmpty && newPassword.isNotEmpty && user != null && user.email != null) {
                 try {
-                  final cred = EmailAuthProvider.credential(
-                      email: user.email!, password: currentPassword);
+                  final cred = EmailAuthProvider.credential(email: user.email!, password: currentPassword);
                   await user.reauthenticateWithCredential(cred);
 
                   await user.updatePassword(newPassword);
@@ -148,7 +137,7 @@ class SettingsClientPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Locale _selectedLocale = Localizations.localeOf(context);
-    final themeNotifier = Provider.of<ThemeNotifier>(context);
+    final themeNotifier = Provider.of<ThemeNotifier>(context); // 👈 Obtener el notificador
 
     return Scaffold(
       body: Center(
@@ -164,9 +153,7 @@ class SettingsClientPage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               DropdownButton<Locale>(
-                value: _selectedLocale.languageCode == 'es'
-                    ? const Locale('es')
-                    : const Locale('en'),
+                value: _selectedLocale.languageCode == 'es' ? const Locale('es') : const Locale('en'),
                 items: const [
                   DropdownMenuItem(value: Locale('en'), child: Text("English")),
                   DropdownMenuItem(value: Locale('es'), child: Text("Español")),
@@ -185,7 +172,7 @@ class SettingsClientPage extends StatelessWidget {
                   Icon(themeNotifier.isDark ? Icons.nightlight : Icons.wb_sunny),
                   const SizedBox(width: 8),
                   Text(
-                    AppLocalizations.of(context)!.theme,
+                    AppLocalizations.of(context)!.theme, // Añade esta key en traducciones
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(width: 8),
