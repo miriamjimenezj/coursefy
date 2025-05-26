@@ -131,5 +131,7 @@
   "changePasswordError": "No se pudo actualizar la contraseña. Inténtalo de nuevo.",
   "success": "Éxito",
   "currentPassword": "Contraseña Actual",
-  "theme": "Tema"
+  "theme": "Tema",
+  "fileOpenError": "No se pudo abrir el archivo.",
+  "openAttachedFile": "Abrir archivo adjunto"
 }

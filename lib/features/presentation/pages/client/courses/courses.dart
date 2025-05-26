@@ -145,6 +145,7 @@ class _CoursesPageState extends State<CoursesPage> {
                     final levelData = levels[levelKey];
                     final content = levelData['content'] ?? '';
                     final tests = levelData['tests'] ?? [];
+                    final fileUrl = levelData['fileUrl'] ?? '';
 
                     Navigator.push(
                       context,
@@ -156,6 +157,7 @@ class _CoursesPageState extends State<CoursesPage> {
                           courseId: widget.courseId,
                           levelKey: levelKey,
                           userAnswers: [],
+                          fileUrl: fileUrl,
                         ),
                       ),
                     );

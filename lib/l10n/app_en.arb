@@ -128,5 +128,7 @@
   "changePasswordError": "Failed to update password. Please try again.",
   "success": "Success",
   "currentPassword": "Current password",
-  "theme": "Theme"
+  "theme": "Theme",
+  "fileOpenError": "Could not open file.",
+  "openAttachedFile": "Open attached file"
 }

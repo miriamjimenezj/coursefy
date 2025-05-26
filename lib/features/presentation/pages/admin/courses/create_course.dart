@@ -1,10 +1,11 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'dart:io';
+import 'dart:typed_data';
 
 class CreateCoursePage extends StatefulWidget {
   const CreateCoursePage({super.key});
@@ -77,21 +78,61 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'txt', 'html'],
+      withData: true,
     );
 
-    if (result != null && result.files.single.bytes != null) {
+    if (result != null && result.files.single != null) {
       final file = result.files.single;
-      final fileName =
-          'level_${index + 1}_${DateTime.now().millisecondsSinceEpoch}.${file.extension}';
+      Uint8List? fileBytes = file.bytes;
 
+      if (fileBytes == null && file.path != null) {
+        final fileOnDisk = File(file.path!);
+        fileBytes = await fileOnDisk.readAsBytes();
+      }
+
+      if (fileBytes == null || fileBytes.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Archivo vacío o no se pudo leer.')),
+        );
+        return;
+      }
+
+      // Genera un nombre descriptivo y único para el archivo
+      String cleanTitle = _titleController.text.trim().replaceAll(RegExp(r'[^\w\s]+'), '').replaceAll(' ', '_');
+      final fileName = '${cleanTitle}_nivel_${index + 1}.${file.extension}';
       final ref = FirebaseStorage.instance.ref().child('course_files/$fileName');
-      await ref.putData(file.bytes!);
-      final downloadUrl = await ref.getDownloadURL();
 
-      setState(() {
-        _levels[index]['file'] = file;
-        _levels[index]['fileUrl'] = downloadUrl;
-      });
+      // --------- METADATOS con Content-Disposition ---------
+      final metadata = SettableMetadata(
+        contentType: file.extension == 'pdf'
+            ? 'application/pdf'
+            : (file.extension == 'txt'
+            ? 'text/plain'
+            : 'text/html'),
+        customMetadata: {
+          'Content-Disposition': 'inline; filename="$fileName"',
+        },
+      );
+      try {
+        await ref.putData(fileBytes, metadata);
+        final downloadUrl = await ref.getDownloadURL();
+
+        setState(() {
+          _levels[index]['file'] = file;
+          _levels[index]['fileUrl'] = downloadUrl;  // <-- Esto es lo importante
+        });
+
+        print('Archivo subido. URL: $downloadUrl');
+      } catch (e) {
+        print('Error al subir a Firebase Storage: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al subir el archivo: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se seleccionó archivo o archivo vacío.')),
+      );
     }
   }
 
@@ -105,6 +146,16 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
       return;
     }
 
+    // Revisa que todos los archivos estén subidos y que los fileUrl sean correctos (si hay archivo)
+    for (int i = 0; i < _levels.length; i++) {
+      if (_levels[i]['file'] != null && (_levels[i]['fileUrl'] == null || _levels[i]['fileUrl'].toString().isEmpty)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Falta subir el archivo adjunto del nivel ${i + 1}")),
+        );
+        return;
+      }
+    }
+
     final userId = _auth.currentUser?.uid;
     if (userId == null) return;
 
@@ -112,7 +163,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     for (int i = 0; i < _levels.length; i++) {
       levelsData['level${i + 1}'] = {
         'content': _levels[i]['content'].text.trim(),
-        'fileUrl': _levels[i]['fileUrl'],
+        'fileUrl': _levels[i]['fileUrl'],  // <-- Guardar exactamente el downloadUrl real aquí
         'tests': _levels[i]['tests'].map((test) => {
           'question': test['question'].text.trim(),
           'answers': List.generate(4, (j) => {
@@ -202,8 +253,6 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
               const SizedBox(height: 10),
               for (int i = 0; i < _levels.length; i++) _buildLevelSection(i),
               const SizedBox(height: 30),
-              //Text("Test Final", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
               ElevatedButton.icon(
                 onPressed: _addFinalTestQuestion,
                 icon: const Icon(Icons.add),
