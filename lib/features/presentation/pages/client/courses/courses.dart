@@ -118,76 +118,90 @@ class _CoursesPageState extends State<CoursesPage> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.selectLevelToStart,
-              style: const TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              alignment: WrapAlignment.center,
-              children: List.generate(levelKeys.length, (index) {
-                final levelKey = levelKeys[index];
-                final isUnlocked = index == 0 ||
-                    completedLevels.contains('level$index') ||
-                    completedLevels.contains(levelKey);
+          : Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.selectLevelToStart,
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                alignment: WrapAlignment.center,
+                children: List.generate(levelKeys.length, (index) {
+                  final levelKey = levelKeys[index];
+                  final isUnlocked = index == 0 ||
+                      completedLevels.contains('level$index') ||
+                      completedLevels.contains(levelKey);
 
-                return GestureDetector(
-                  onTap: isUnlocked
-                      ? () {
-                    final levelData = levels[levelKey];
-                    final content = levelData['content'] ?? '';
-                    final tests = levelData['tests'] ?? [];
-                    final fileUrl = levelData['fileUrl'] ?? '';
+                  return GestureDetector(
+                    onTap: isUnlocked
+                        ? () {
+                      final levelData = levels[levelKey];
+                      final content = levelData['content'] ?? '';
+                      final tests = levelData['tests'] ?? [];
+                      final fileUrl = levelData['fileUrl'] ?? '';
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LevelPage(
-                          levelName: 'Level ${levelKey.replaceAll('level', '')}',
-                          content: content,
-                          tests: tests,
-                          courseId: widget.courseId,
-                          levelKey: levelKey,
-                          userAnswers: [],
-                          fileUrl: fileUrl,
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LevelPage(
+                            levelName: 'Level ${levelKey.replaceAll('level', '')}',
+                            content: content,
+                            tests: tests,
+                            courseId: widget.courseId,
+                            levelKey: levelKey,
+                            userAnswers: [],
+                            fileUrl: fileUrl,
+                          ),
                         ),
+                      );
+                    }
+                        : null,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isUnlocked ? Colors.lightBlueAccent : Colors.grey[400],
                       ),
-                    );
-                  }
-                      : null,
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isUnlocked ? Colors.lightBlueAccent : Colors.grey[400],
+                      alignment: Alignment.center,
+                      child: isUnlocked
+                          ? Text(
+                        'L${index + 1}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      )
+                          : const Icon(Icons.lock, color: Colors.white),
                     ),
-                    alignment: Alignment.center,
-                    child: isUnlocked
-                        ? Text(
-                      'L${index + 1}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    )
-                        : const Icon(Icons.lock, color: Colors.white),
-                  ),
-                );
-              }),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: allLevelsCompleted ? _openFinalTest : null,
-              icon: const Icon(Icons.check_circle),
-              label: Text(AppLocalizations.of(context)!.finalTest),
-            ),
-          ],
+                  );
+                }),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton.icon(
+                onPressed: allLevelsCompleted ? _openFinalTest : null,
+                icon: const Icon(Icons.check_circle),
+                label: Text(AppLocalizations.of(context)!.finalTest),
+              ),
+              const Spacer(), // Empuja la casita abajo
+              IconButton(
+                icon: const Icon(Icons.home, size: 40, color: Colors.blueAccent),
+                tooltip: AppLocalizations.of(context)!.home, // Añade la key en tu arb
+                onPressed: () {
+                  // Vuelve a la Home, ajusta la navegación según tu app
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  // O usa Navigator.pushReplacement si quieres reemplazar
+                },
+              ),
+              const SizedBox(height: 16), // Espacio inferior extra
+            ],
+          ),
         ),
       ),
     );

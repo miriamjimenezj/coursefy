@@ -139,5 +139,6 @@
   "noEmptyQuestionsOrAnswers": "No question or answer field can be empty.",
   "missingLevelAttachment": "Missing attached file for level {levelNum}",
   "missingLevelAttachmentLevelNum": "Level",
-  "fileAttachedSuccessfully": "File attached successfully"
+  "fileAttachedSuccessfully": "File attached successfully",
+  "startCourse": "Tap to see course"
 }

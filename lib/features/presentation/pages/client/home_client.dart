@@ -74,7 +74,7 @@ class _HomeClientState extends State<HomeClient> {
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: ListTile(
                 title: Text(courseTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text(AppLocalizations.of(context)!.createdBy),
+                subtitle: Text(AppLocalizations.of(context)!.startCourse),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
                   Navigator.push(

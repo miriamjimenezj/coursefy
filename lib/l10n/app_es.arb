@@ -142,5 +142,6 @@
   "noEmptyQuestionsOrAnswers": "Ningún campo de las preguntas ni de las respuestas puede estar vacío.",
   "missingLevelAttachment": "Falta subir el archivo adjunto del nivel {levelNum}",
   "missingLevelAttachmentLevelNum": "Nivel",
-  "fileAttachedSuccessfully": "Archivo adjuntado correctamente"
+  "fileAttachedSuccessfully": "Archivo adjuntado correctamente",
+  "startCourse": "Entra para ver el curso"
 }
