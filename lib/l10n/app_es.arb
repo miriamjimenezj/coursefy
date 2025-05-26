@@ -133,5 +133,14 @@
   "currentPassword": "Contraseña Actual",
   "theme": "Tema",
   "fileOpenError": "No se pudo abrir el archivo.",
-  "openAttachedFile": "Abrir archivo adjunto"
+  "openAttachedFile": "Abrir archivo adjunto",
+  "fileEmptyOrUnreadable": "Archivo vacío o no se pudo leer.",
+  "fileUploadError": "Error al subir el archivo",
+  "fileNotSelectedOrEmpty": "No se seleccionó archivo o archivo vacío.",
+  "finalTestRequired": "Debes añadir al menos una pregunta al test final",
+  "correctAnswerRequired": "Cada pregunta debe tener una respuesta correcta seleccionada.",
+  "noEmptyQuestionsOrAnswers": "Ningún campo de las preguntas ni de las respuestas puede estar vacío.",
+  "missingLevelAttachment": "Falta subir el archivo adjunto del nivel {levelNum}",
+  "missingLevelAttachmentLevelNum": "Nivel",
+  "fileAttachedSuccessfully": "Archivo adjuntado correctamente"
 }

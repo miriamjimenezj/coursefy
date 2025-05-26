@@ -130,5 +130,14 @@
   "currentPassword": "Current password",
   "theme": "Theme",
   "fileOpenError": "Could not open file.",
-  "openAttachedFile": "Open attached file"
+  "openAttachedFile": "Open attached file",
+  "fileEmptyOrUnreadable": "File is empty or could not be read.",
+  "fileUploadError": "Error uploading file",
+  "fileNotSelectedOrEmpty": "No file selected or file is empty.",
+  "finalTestRequired": "You must add at least one question to the final test.",
+  "correctAnswerRequired": "Each question must have a correct answer selected.",
+  "noEmptyQuestionsOrAnswers": "No question or answer field can be empty.",
+  "missingLevelAttachment": "Missing attached file for level {levelNum}",
+  "missingLevelAttachmentLevelNum": "Level",
+  "fileAttachedSuccessfully": "File attached successfully"
 }

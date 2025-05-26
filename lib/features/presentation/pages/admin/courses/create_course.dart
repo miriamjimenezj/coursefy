@@ -74,6 +74,48 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     });
   }
 
+  bool _allQuestionsHaveCorrectAnswer() {
+    // Validar preguntas de los tests por nivel
+    for (var level in _levels) {
+      for (var test in level['tests']) {
+        final answers = test['answers'];
+        if (!answers.any((a) => a['correct'] == true)) {
+          return false;
+        }
+      }
+    }
+    // Validar preguntas del test final
+    for (var test in _finalTest) {
+      final answers = test['answers'];
+      if (!answers.any((a) => a['correct'] == true)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool _allQuestionsAndAnswersFilled() {
+    // Revisar preguntas y respuestas de todos los tests por nivel
+    for (var level in _levels) {
+      for (var test in level['tests']) {
+        final questionText = test['question'].text.trim();
+        if (questionText.isEmpty) return false;
+        for (var answer in test['answers']) {
+          if (answer['text'].text.trim().isEmpty) return false;
+        }
+      }
+    }
+    // Revisar preguntas y respuestas del test final
+    for (var test in _finalTest) {
+      final questionText = test['question'].text.trim();
+      if (questionText.isEmpty) return false;
+      for (var answer in test['answers']) {
+        if (answer['text'].text.trim().isEmpty) return false;
+      }
+    }
+    return true;
+  }
+
   Future<void> _pickFile(int index) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -92,7 +134,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
       if (fileBytes == null || fileBytes.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Archivo vacío o no se pudo leer.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.fileEmptyOrUnreadable)),
         );
         return;
       }
@@ -126,12 +168,12 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
       } catch (e) {
         print('Error al subir a Firebase Storage: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al subir el archivo: $e')),
+          SnackBar(content: Text("${AppLocalizations.of(context)!.fileUploadError}: $e")),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se seleccionó archivo o archivo vacío.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.fileNotSelectedOrEmpty)),
       );
     }
   }
@@ -141,7 +183,21 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
     if (_finalTest.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Debes añadir al menos una pregunta al test final")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.finalTestRequired)),
+      );
+      return;
+    }
+
+    if (!_allQuestionsHaveCorrectAnswer()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.correctAnswerRequired)),
+      );
+      return;
+    }
+
+    if (!_allQuestionsAndAnswersFilled()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.noEmptyQuestionsOrAnswers)),
       );
       return;
     }
@@ -150,7 +206,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     for (int i = 0; i < _levels.length; i++) {
       if (_levels[i]['file'] != null && (_levels[i]['fileUrl'] == null || _levels[i]['fileUrl'].toString().isEmpty)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Falta subir el archivo adjunto del nivel ${i + 1}")),
+          SnackBar(content: Text(AppLocalizations.of(context)!.missingLevelAttachment(i + 1))),
         );
         return;
       }
@@ -310,7 +366,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         if (_levels[index]['fileUrl'] != '')
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
-            child: Text("Archivo adjuntado correctamente", style: const TextStyle(color: Colors.green)),
+            child: Text(AppLocalizations.of(context)!.fileAttachedSuccessfully, style: const TextStyle(color: Colors.green))
           ),
         const SizedBox(height: 10),
         ElevatedButton.icon(
