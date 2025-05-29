@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:coursefy/features/presentation/pages/login_page.dart';
+import 'package:coursefy/features/presentation/pages/auth/login_page.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/themeNotifier.dart';
 

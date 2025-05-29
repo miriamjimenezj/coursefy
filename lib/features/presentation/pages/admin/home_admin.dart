@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:coursefy/features/presentation/pages/login_page.dart';
+import 'package:coursefy/features/presentation/pages/auth/login_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'profile_admin.dart';
 import 'settings_admin.dart';

@@ -9,8 +9,8 @@ import 'package:provider/provider.dart';
 import 'features/presentation/widgets/themeNotifier.dart';
 
 import 'package:coursefy/features/app/splash_screen/splash_screen.dart';
-import 'package:coursefy/features/presentation/pages/login_page.dart';
-import 'package:coursefy/features/presentation/pages/sign_up_page.dart';
+import 'package:coursefy/features/presentation/pages/auth/login_page.dart';
+import 'package:coursefy/features/presentation/pages/auth/sign_up_page.dart';
 import 'package:coursefy/features/presentation/pages/admin/home_admin.dart';
 import 'package:coursefy/features/presentation/pages/client/home_client.dart';
 import 'package:coursefy/features/presentation/pages/admin/settings_admin.dart';
