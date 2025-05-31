@@ -6,6 +6,7 @@ import 'package:coursefy/features/presentation/pages/auth/login_page.dart';
 import 'package:coursefy/features/presentation/widgets/form_container_widget.dart';
 import 'package:coursefy/features/presentation/pages/admin/home_admin.dart';
 import 'package:coursefy/features/presentation/pages/client/home_client.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignUpPage extends StatefulWidget {
   final Function(Locale) onLocaleChange;
@@ -58,6 +59,49 @@ class _SignUpPageState extends State<SignUpPage> {
       }
     } catch (e) {
       _showErrorDialog("Error", "Could not fetch admin code. Please try again.");
+    }
+  }
+
+  Future<void> _signUpWithGoogle() async {
+    setState(() => isSigningUp = true);
+
+    try {
+      // Iniciar flujo de inicio de sesión con Google
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        setState(() => isSigningUp = false);
+        return; // Cancelado por el usuario
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Autenticar en Firebase
+      final UserCredential userCredential =
+      await _firebaseAuth.signInWithCredential(credential);
+
+      final User? user = userCredential.user;
+
+      if (user != null) {
+        // Crear documento en Firestore SOLO si es nuevo usuario
+        final userDoc = await _firestore.collection('users').doc(user.uid).get();
+        if (!userDoc.exists) {
+          await _firestore.collection('users').doc(user.uid).set({
+            'email': user.email,
+            'role': 'client',
+            'createdAt': DateTime.now(),
+          });
+        }
+        _redirectUser(user.uid);
+      }
+    } catch (e) {
+      _showErrorDialog("Google Sign-In Error", "Could not sign in with Google. Please try again.");
+    } finally {
+      setState(() => isSigningUp = false);
     }
   }
 
@@ -222,7 +266,15 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
               ),
-
+              if (_selectedRole == "client") ...[
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.login),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  label: const Text("Sign Up with Google"),
+                  onPressed: _signUpWithGoogle,
+                ),
+              ],
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

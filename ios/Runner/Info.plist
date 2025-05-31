@@ -49,5 +49,16 @@
     <string>This app requires access to photo library.</string>
     <key>NSDocumentsFolderUsageDescription</key>
     <string>This app needs access to files.</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+      <dict>
+        <key>CFBundleTypeRole</key>
+        <string>Editor</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>com.googleusercontent.apps.575785652048-ihfhu0c96r0opprs291t4bp0polb13ne</string>
+        </array>
+      </dict>
+    </array>
 </dict>
 </plist>
