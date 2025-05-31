@@ -140,5 +140,9 @@
   "missingLevelAttachment": "Missing attached file for level {levelNum}",
   "missingLevelAttachmentLevelNum": "Level",
   "fileAttachedSuccessfully": "File attached successfully",
-  "startCourse": "Tap to see course"
+  "startCourse": "Tap to see course",
+  "levelRequired": "You must add at least one level",
+  "eachLevelAtLeastOneQuestion": "Each level must have at least one question.",
+  "levelContentOrFile": "Each Level must have content or an attached file.",
+  "fileDeletedSuccessfully": "File Deleted succesfully"
 }

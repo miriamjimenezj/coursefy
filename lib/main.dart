@@ -8,7 +8,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'features/presentation/widgets/themeNotifier.dart';
 
-import 'package:coursefy/features/app/splash_screen/splash_screen.dart';
+import 'package:coursefy/features/presentation/pages/splash_screen/splash_screen.dart';
 import 'package:coursefy/features/presentation/pages/auth/login_page.dart';
 import 'package:coursefy/features/presentation/pages/auth/sign_up_page.dart';
 import 'package:coursefy/features/presentation/pages/admin/home_admin.dart';

@@ -1,6 +1,36 @@
-# coursefy
+# Coursefy
 
-Courses Application
+**Coursefy** es una aplicación móvil desarrollada en Flutter para la gestión de cursos formativos. Permite a administradores crear cursos, añadir niveles, adjuntar archivos (PDF, TXT, HTML), y definir tests tipo test. Los usuarios pueden visualizar cursos, avanzar por niveles, realizar tests, y consultar su progreso.
+
+---
+
+## Características principales
+
+- **Registro y autenticación con Firebase**
+- **Diferentes roles:** Administrador y Cliente.
+- **Gestión de cursos:**
+    - Crear cursos con múltiples niveles.
+    - Añadir contenido explicativo y archivos adjuntos (PDF, TXT, HTML) a cada nivel.
+    - Añadir preguntas tipo test por nivel y un test final de curso.
+    - Gestión de tags/etiquetas para filtrar cursos.
+- **Visualización para usuarios:**
+    - Progreso por niveles.
+    - Visualización directa o descarga de archivos adjuntos.
+    - Realización de tests por nivel y test final.
+- **Sistema de cambio de idioma (Español/Inglés)**
+- **Modo claro/oscuro seleccionable**
+- **Almacenamiento seguro de archivos y datos en Firebase**
+- **Validaciones avanzadas en formularios** (no se permiten preguntas vacías ni tests sin respuestas correctas)
+
+---
+
+## Instalación
+
+### 1. Clona el repositorio
+
+``bash
+git clone https://github.com/tu-usuario/coursefy.git
+cd coursefy
 
 ## Getting Started
 

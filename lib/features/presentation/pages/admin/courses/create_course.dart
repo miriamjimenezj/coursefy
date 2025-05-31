@@ -29,9 +29,34 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         'content': TextEditingController(),
         'file': null,
         'fileUrl': '',
+        'fileName': '', // <-- Añadimos para borrar el archivo después
         'tests': <Map<String, dynamic>>[],
       });
     });
+  }
+
+  void _removeLevel(int index) async {
+    // Borra archivo de storage si existe
+    final fileUrl = _levels[index]['fileUrl'] ?? '';
+    final fileName = _levels[index]['fileName'] ?? '';
+    if (fileUrl.isNotEmpty && fileName.isNotEmpty) {
+      try {
+        final ref = FirebaseStorage.instance.ref().child('course_files/$fileName');
+        await ref.delete();
+      } catch (_) {}
+    }
+    setState(() {
+      _levels.removeAt(index);
+    });
+  }
+
+  bool _eachLevelHasAtLeastOneQuestion() {
+    for (int i = 0; i < _levels.length; i++) {
+      if (_levels[i]['tests'].isEmpty) {
+        return false;
+      }
+    }
+    return true;
   }
 
   void _addQuestion(int levelIndex) {
@@ -43,6 +68,12 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           'correct': false,
         }),
       });
+    });
+  }
+
+  void _removeQuestion(int levelIndex, int questionIndex) {
+    setState(() {
+      _levels[levelIndex]['tests'].removeAt(questionIndex);
     });
   }
 
@@ -162,6 +193,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         setState(() {
           _levels[index]['file'] = file;
           _levels[index]['fileUrl'] = downloadUrl;  // <-- Esto es lo importante
+          _levels[index]['fileName'] = fileName;    // <-- Guardamos nombre para eliminar
         });
 
         print('Archivo subido. URL: $downloadUrl');
@@ -178,8 +210,59 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     }
   }
 
+  Future<void> _removeFile(int index) async {
+    final fileUrl = _levels[index]['fileUrl'] ?? '';
+    final fileName = _levels[index]['fileName'] ?? '';
+    if (fileUrl.isNotEmpty && fileName.isNotEmpty) {
+      try {
+        final ref = FirebaseStorage.instance.ref().child('course_files/$fileName');
+        await ref.delete();
+      } catch (_) {}
+    }
+    setState(() {
+      _levels[index]['file'] = null;
+      _levels[index]['fileUrl'] = '';
+      _levels[index]['fileName'] = '';
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(AppLocalizations.of(context)!.fileDeletedSuccessfully)),
+    );
+  }
+
   Future<void> _saveCourse() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_levels.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.levelRequired)),
+      );
+      return;
+    }
+
+    for (int i = 0; i < _levels.length; i++) {
+      final contentText = _levels[i]['content'].text.trim();
+      final fileUrl = _levels[i]['fileUrl'];
+      if ((contentText.isEmpty) && (fileUrl == null || fileUrl.toString().isEmpty)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.levelContentOrFile)),
+        );
+        return;
+      }
+    }
+
+    if (!_eachLevelHasAtLeastOneQuestion()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.eachLevelAtLeastOneQuestion)),
+      );
+      return;
+    }
+
+    if (!_allQuestionsAndAnswersFilled()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.noEmptyQuestionsOrAnswers)),
+      );
+      return;
+    }
 
     if (_finalTest.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -191,13 +274,6 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     if (!_allQuestionsHaveCorrectAnswer()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.correctAnswerRequired)),
-      );
-      return;
-    }
-
-    if (!_allQuestionsAndAnswersFilled()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.noEmptyQuestionsOrAnswers)),
       );
       return;
     }
@@ -219,7 +295,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     for (int i = 0; i < _levels.length; i++) {
       levelsData['level${i + 1}'] = {
         'content': _levels[i]['content'].text.trim(),
-        'fileUrl': _levels[i]['fileUrl'],  // <-- Guardar exactamente el downloadUrl real aquí
+        'fileUrl': _levels[i]['fileUrl'],
         'tests': _levels[i]['tests'].map((test) => {
           'question': test['question'].text.trim(),
           'answers': List.generate(4, (j) => {
@@ -336,7 +412,17 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
   Widget _buildLevelSection(int index) {
     return ExpansionTile(
-      title: Text("${AppLocalizations.of(context)!.content} L${index + 1}"),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text("${AppLocalizations.of(context)!.content} L${index + 1}"),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            tooltip: "Eliminar nivel",
+            onPressed: () => _removeLevel(index),
+          ),
+        ],
+      ),
       children: [
         TextFormField(
           controller: _levels[index]['content'],
@@ -347,52 +433,80 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           maxLines: 3,
         ),
         const SizedBox(height: 10),
-        ElevatedButton.icon(
-          onPressed: () async {
-            try {
-              await _pickFile(index);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(AppLocalizations.of(context)!.fileAttached)),
-              );
-            } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(AppLocalizations.of(context)!.fileAttachError)),
-              );
-            }
-          },
-          icon: const Icon(Icons.attach_file),
-          label: Text(AppLocalizations.of(context)!.addFile),
+        Row(
+          children: [
+            ElevatedButton.icon(
+              onPressed: () async {
+                try {
+                  await _pickFile(index);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(AppLocalizations.of(context)!.fileAttached)),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(AppLocalizations.of(context)!.fileAttachError)),
+                  );
+                }
+              },
+              icon: const Icon(Icons.attach_file),
+              label: Text(AppLocalizations.of(context)!.addFile),
+            ),
+            const SizedBox(width: 12),
+            if (_levels[index]['fileUrl'] != '')
+              ElevatedButton.icon(
+                onPressed: () => _removeFile(index),
+                icon: const Icon(Icons.delete, color: Colors.white),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                label: const Text("Eliminar archivo"),
+              ),
+          ],
         ),
         if (_levels[index]['fileUrl'] != '')
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
-            child: Text(AppLocalizations.of(context)!.fileAttachedSuccessfully, style: const TextStyle(color: Colors.green))
+            child: Text(AppLocalizations.of(context)!.fileAttachedSuccessfully, style: const TextStyle(color: Colors.green)),
           ),
         const SizedBox(height: 10),
+        // Aquí van todas las preguntas del nivel
+        ...List.generate(
+          _levels[index]['tests'].length,
+              (qIdx) => Column(
+            children: [
+              _buildTestQuestion(_levels[index]['tests'][qIdx], onDelete: () => _removeQuestion(index, qIdx)),
+              const SizedBox(height: 32),
+            ],
+          ),
+        ),
         ElevatedButton.icon(
           onPressed: () => _addQuestion(index),
           icon: const Icon(Icons.add),
           label: Text(AppLocalizations.of(context)!.addQuestion),
         ),
-        ..._levels[index]['tests'].map<Widget>((test) => Column(
-          children: [
-            _buildTestQuestion(test),
-            const SizedBox(height: 32),
-          ],
-        )).toList(),
       ],
     );
   }
 
-  Widget _buildTestQuestion(Map<String, dynamic> test) {
+  Widget _buildTestQuestion(Map<String, dynamic> test, {VoidCallback? onDelete}) {
     return Column(
       children: [
-        TextFormField(
-          controller: test['question'],
-          decoration: InputDecoration(
-            labelText: AppLocalizations.of(context)!.question,
-            border: const OutlineInputBorder(),
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: test['question'],
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.question,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+            if (onDelete != null)
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                tooltip: "Eliminar pregunta",
+                onPressed: onDelete,
+              ),
+          ],
         ),
         ...List.generate(4, (i) {
           return Row(

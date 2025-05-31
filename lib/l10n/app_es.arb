@@ -143,5 +143,9 @@
   "missingLevelAttachment": "Falta subir el archivo adjunto del nivel {levelNum}",
   "missingLevelAttachmentLevelNum": "Nivel",
   "fileAttachedSuccessfully": "Archivo adjuntado correctamente",
-  "startCourse": "Entra para ver el curso"
+  "startCourse": "Entra para ver el curso",
+  "levelRequired": "Debes añadir al menos un nivel",
+  "eachLevelAtLeastOneQuestion": "Cada nivel debe tener al menos una pregunta.",
+  "levelContentOrFile": "Cada nivel debe tener contenido o un fichero adjunto.",
+  "fileDeletedSuccessfully": "Archivo eliminado correctamente"
 }
