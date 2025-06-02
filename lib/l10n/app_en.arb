@@ -152,5 +152,9 @@
   "deleteCourseConfirm": "Are you sure you want to delete this course? This action cannot be undone.",
   "deleteCourse": "Delete course",
   "courseDeleted": "Course deleted successfully",
-  "notLoggedIn": "Not logged in"
+  "notLoggedIn": "Not logged in",
+  "finalTestPassed": "The final test has been completed successfully",
+  "finalTestNotPassed": "The final test has not been passed",
+  "errorPswd": "The new password must be at least 8 characters long.",
+  "incorrectPswd": "Current password is incorrect"
 }

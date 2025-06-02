@@ -155,5 +155,9 @@
   "deleteCourseConfirm": "¿Estás seguro de que quieres eliminar este curso? Esta acción no se puede deshacer.",
   "deleteCourse": "Eliminar curso",
   "courseDeleted": "Curso eliminado correctamente",
-  "notLoggedIn": "No has iniciado sesión"
+  "notLoggedIn": "No has iniciado sesión",
+  "finalTestPassed": "El test final ha sido completado con éxito",
+  "finalTestNotPassed": "El test final no ha sido superado",
+  "errorPswd": "La nueva contraseña debe tener al menos 8 caracteres.",
+  "incorrectPswd": "La contraseña actual es incorrecta."
 }

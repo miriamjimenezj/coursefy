@@ -514,7 +514,14 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                 value: test['answers'][i]['correct'],
                 onChanged: (val) {
                   setState(() {
-                    test['answers'][i]['correct'] = val!;
+                    if (val == true) {
+                      for (var j = 0; j < test['answers'].length; j++) {
+                        test['answers'][j]['correct'] = false;
+                      }
+                      test['answers'][i]['correct'] = true;
+                    } else {
+                      test['answers'][i]['correct'] = false;
+                    }
                   });
                 },
               ),

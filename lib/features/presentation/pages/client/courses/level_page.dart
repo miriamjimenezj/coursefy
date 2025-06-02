@@ -32,68 +32,70 @@ class LevelPage extends StatelessWidget {
         title: Text(levelName),
         leading: const BackButton(),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Icon(Icons.book, size: 40),
-                  const SizedBox(height: 10),
-                  if (content.trim().isNotEmpty)
-                    Text(
-                      content,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                  if (hasFile) ...[
-                    const SizedBox(height: 20),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.attach_file),
-                      onPressed: () async {
-                        final url = Uri.parse(fileUrl!);
-                        if (await canLaunchUrl(url)) {
-                          await launchUrl(url);
-                        }
-                      },
-                      label: Text(AppLocalizations.of(context)!.openAttachedFile),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
-                        foregroundColor: Colors.white,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.book, size: 40),
+                    const SizedBox(height: 10),
+                    if (content.trim().isNotEmpty)
+                      Text(
+                        content,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    if (hasFile) ...[
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.attach_file),
+                        onPressed: () async {
+                          final url = Uri.parse(fileUrl!);
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url);
+                          }
+                        },
+                        label: Text(AppLocalizations.of(context)!.openAttachedFile),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurple,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LevelTestPage(
+                        levelName: levelName,
+                        questions: List<Map<String, dynamic>>.from(tests),
+                        courseId: courseId,
+                        levelKey: levelKey,
+                        userAnswers: [],
                       ),
                     ),
-                  ],
-                ],
+                  );
+                },
+                icon: const Icon(Icons.check_circle_outline),
+                label: Text(AppLocalizations.of(context)!.takeTest),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue[600],
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LevelTestPage(
-                      levelName: levelName,
-                      questions: List<Map<String, dynamic>>.from(tests),
-                      courseId: courseId,
-                      levelKey: levelKey,
-                      userAnswers: [],
-                    ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.check_circle_outline),
-              label: Text(AppLocalizations.of(context)!.takeTest),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[600],
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

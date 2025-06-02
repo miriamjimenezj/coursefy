@@ -104,9 +104,22 @@ class SettingsAdminPage extends StatelessWidget {
               final newPassword = _newPasswordController.text.trim();
               final user = FirebaseAuth.instance.currentUser;
 
-              if (currentPassword.isNotEmpty && newPassword.isNotEmpty && user != null && user.email != null) {
+              if (newPassword.length < 8) {
+                _showErrorDialog(
+                  context,
+                  AppLocalizations.of(context)!.errorTitle,
+                  AppLocalizations.of(context)!.errorPswd,
+                );
+                return;
+              }
+
+              if (currentPassword.isNotEmpty &&
+                  newPassword.isNotEmpty &&
+                  user != null &&
+                  user.email != null) {
                 try {
-                  final cred = EmailAuthProvider.credential(email: user.email!, password: currentPassword);
+                  final cred = EmailAuthProvider.credential(
+                      email: user.email!, password: currentPassword);
                   await user.reauthenticateWithCredential(cred);
 
                   await user.updatePassword(newPassword);
@@ -117,6 +130,24 @@ class SettingsAdminPage extends StatelessWidget {
                     AppLocalizations.of(context)!.success,
                     AppLocalizations.of(context)!.passwordUpdatedSuccessfully,
                   );
+                } on FirebaseAuthException catch (e) {
+                  Navigator.pop(context);
+                  if (e.code == 'wrong-password' ||
+                      e.code == 'user-mismatch' ||
+                      e.code == 'invalid-credential' ||
+                      e.code == 'invalid-password') {
+                    _showErrorDialog(
+                      context,
+                      AppLocalizations.of(context)!.errorTitle,
+                      AppLocalizations.of(context)!.incorrectPswd,
+                    );
+                  } else {
+                    _showErrorDialog(
+                      context,
+                      AppLocalizations.of(context)!.errorTitle,
+                      AppLocalizations.of(context)!.changePasswordError,
+                    );
+                  }
                 } catch (e) {
                   Navigator.pop(context);
                   _showErrorDialog(

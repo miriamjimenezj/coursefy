@@ -108,20 +108,27 @@ class _SignUpPageState extends State<SignUpPage> {
     String password = _passwordController.text.trim();
     String adminCodeInput = _adminCodeController.text.trim();
 
+    if (email.isEmpty || password.isEmpty || (_selectedRole == "admin" && adminCodeInput.isEmpty)) {
+      _showErrorDialog("Error", "All fields must be filled in.");
+      setState(() => isSigningUp = false);
+      return;
+    }
+
+    if (password.length < 8) {
+      _showErrorDialog("Invalid password", "Password must be at least 8 characters.");
+      setState(() => isSigningUp = false);
+      return;
+    }
+
     if (_selectedRole == "admin") {
       if (_adminCode == null) {
-        _showErrorDialog("Admin Code Error", "No admin code found in Firestore.");
-        setState(() {
-          isSigningUp = false;
-        });
+        _showErrorDialog("Admin Code Error", "The admin code could not be found in the database.");
+        setState(() => isSigningUp = false);
         return;
       }
-
       if (adminCodeInput != _adminCode) {
-        _showErrorDialog("Invalid Admin Code", "The admin code you entered is incorrect.");
-        setState(() {
-          isSigningUp = false;
-        });
+        _showErrorDialog("Invalid Admin Code", "The admin code is incorrect.");
+        setState(() => isSigningUp = false);
         return;
       }
     }
@@ -131,7 +138,6 @@ class _SignUpPageState extends State<SignUpPage> {
         email: email,
         password: password,
       );
-
       User? user = userCredential.user;
 
       if (user != null) {
@@ -144,12 +150,20 @@ class _SignUpPageState extends State<SignUpPage> {
         await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
         _redirectUser(user.uid);
       }
+    } on FirebaseAuthException catch (e) {
+      String errorMsg = "No se ha podido registrar el usuario. Inténtalo de nuevo.";
+      if (e.code == 'email-already-in-use') {
+        errorMsg = "Este email ya está registrado. Prueba con otro.";
+      } else if (e.code == 'invalid-email') {
+        errorMsg = "El email no es válido.";
+      } else if (e.code == 'weak-password') {
+        errorMsg = "La contraseña es demasiado débil.";
+      }
+      _showErrorDialog("Error de registro", errorMsg);
     } catch (e) {
-      _showErrorDialog("Registration Error", "Could not register user. Please try again.");
+      _showErrorDialog("Error de registro", "No se ha podido registrar el usuario. Inténtalo de nuevo.");
     } finally {
-      setState(() {
-        isSigningUp = false;
-      });
+      setState(() => isSigningUp = false);
     }
   }
 

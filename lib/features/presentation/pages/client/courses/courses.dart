@@ -22,7 +22,7 @@ class CoursesPage extends StatefulWidget {
 class _CoursesPageState extends State<CoursesPage> {
   List<String> completedLevels = [];
   bool isLoading = true;
-  bool finalTestPassed = false;
+  bool? finalTestPassed = false;
   Map<String, dynamic> levels = {};
 
   @override
@@ -58,7 +58,8 @@ class _CoursesPageState extends State<CoursesPage> {
       final doc = progressSnapshot.docs.first;
       final data = doc.data();
       final List<dynamic> levelsCompleted = data['completedLevels'] ?? [];
-      finalTestPassed = data['finalTestPassed'] ?? false;
+      //finalTestPassed = data['finalTestPassed'] ?? false;
+      finalTestPassed = data.containsKey('finalTestPassed') ? data['finalTestPassed'] : null;
 
       setState(() {
         completedLevels = List<String>.from(levelsCompleted);
@@ -187,6 +188,29 @@ class _CoursesPageState extends State<CoursesPage> {
                 icon: const Icon(Icons.check_circle),
                 label: Text(AppLocalizations.of(context)!.finalTest),
               ),
+              if (allLevelsCompleted && finalTestPassed != null) ...[
+                const SizedBox(height: 16),
+                if (finalTestPassed == true)
+                  Text(
+                    AppLocalizations.of(context)!.finalTestPassed,
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                else
+                  Text(
+                    AppLocalizations.of(context)!.finalTestNotPassed,
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+              ],
               const Spacer(),
               IconButton(
                 icon: const Icon(Icons.home, size: 40, color: Colors.blueAccent),
