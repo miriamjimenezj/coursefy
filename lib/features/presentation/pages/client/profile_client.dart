@@ -43,7 +43,6 @@ class ProfilePage extends StatelessWidget {
     return result;
   }
 
-  /// Trae las insignias desde la colección 'users'
   Future<List<String>> _fetchUnlockedBadgesFromUserCollection(String userId) async {
     final userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
     if (!userDoc.exists) return [];
@@ -67,7 +66,7 @@ class ProfilePage extends StatelessWidget {
     final local = AppLocalizations.of(context)!;
 
     if (user == null) {
-      return const Center(child: Text("Not logged in"));
+      return Center(child: Text(local.notLoggedIn));
     }
 
     return FutureBuilder<Map<String, dynamic>>(
@@ -77,7 +76,6 @@ class ProfilePage extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
-        // Aunque no haya cursos, las insignias y el header siempre aparecen
         final unlockedBadges = (snapshot.data?['badges'] as List<String>? ?? []);
         final courses = (snapshot.data?['courses'] as List<Map<String, dynamic>>? ?? []);
 
@@ -188,7 +186,6 @@ class ProfilePage extends StatelessWidget {
                                 builder: (_) => CoursesPage(
                                   courseId: course['id'],
                                   courseTitle: course['title'],
-                                  //levels: Map<String, dynamic>.from(course['levels']),
                                 ),
                               ),
                             );

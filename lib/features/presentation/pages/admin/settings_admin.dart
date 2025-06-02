@@ -137,7 +137,7 @@ class SettingsAdminPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Locale _selectedLocale = Localizations.localeOf(context);
-    final themeNotifier = Provider.of<ThemeNotifier>(context); // 👈 Obtener el notificador
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
 
     return Scaffold(
       body: Center(
@@ -165,14 +165,13 @@ class SettingsAdminPage extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 30),
-              // *** Cambia de tema claro/oscuro ***
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(themeNotifier.isDark ? Icons.nightlight : Icons.wb_sunny),
                   const SizedBox(width: 8),
                   Text(
-                    AppLocalizations.of(context)!.theme, // Añade esta key en traducciones
+                    AppLocalizations.of(context)!.theme,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(width: 8),

@@ -39,7 +39,7 @@ class _HomeClientState extends State<HomeClient> {
       }
     }
     setState(() {
-      _allTags = [''].followedBy(tags).toSet().toList(); // '' → opción "Todos"
+      _allTags = [''].followedBy(tags).toSet().toList();
     });
   }
 
@@ -83,8 +83,6 @@ class _HomeClientState extends State<HomeClient> {
                       builder: (context) => CoursesPage(
                         courseId: course.id,
                         courseTitle: course['title'] ?? '',
-                        //levels: course['levels'] ?? {},
-                        //levelKey: key,
                       ),
                     ),
                   );

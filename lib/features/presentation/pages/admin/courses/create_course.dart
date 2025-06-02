@@ -29,14 +29,13 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         'content': TextEditingController(),
         'file': null,
         'fileUrl': '',
-        'fileName': '', // <-- Añadimos para borrar el archivo después
+        'fileName': '',
         'tests': <Map<String, dynamic>>[],
       });
     });
   }
 
   void _removeLevel(int index) async {
-    // Borra archivo de storage si existe
     final fileUrl = _levels[index]['fileUrl'] ?? '';
     final fileName = _levels[index]['fileName'] ?? '';
     if (fileUrl.isNotEmpty && fileName.isNotEmpty) {
@@ -106,7 +105,6 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
   }
 
   bool _allQuestionsHaveCorrectAnswer() {
-    // Validar preguntas de los tests por nivel
     for (var level in _levels) {
       for (var test in level['tests']) {
         final answers = test['answers'];
@@ -115,7 +113,6 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         }
       }
     }
-    // Validar preguntas del test final
     for (var test in _finalTest) {
       final answers = test['answers'];
       if (!answers.any((a) => a['correct'] == true)) {
@@ -126,7 +123,6 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
   }
 
   bool _allQuestionsAndAnswersFilled() {
-    // Revisar preguntas y respuestas de todos los tests por nivel
     for (var level in _levels) {
       for (var test in level['tests']) {
         final questionText = test['question'].text.trim();
@@ -136,7 +132,6 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         }
       }
     }
-    // Revisar preguntas y respuestas del test final
     for (var test in _finalTest) {
       final questionText = test['question'].text.trim();
       if (questionText.isEmpty) return false;
@@ -170,12 +165,10 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         return;
       }
 
-      // Genera un nombre descriptivo y único para el archivo
       String cleanTitle = _titleController.text.trim().replaceAll(RegExp(r'[^\w\s]+'), '').replaceAll(' ', '_');
       final fileName = '${cleanTitle}_nivel_${index + 1}.${file.extension}';
       final ref = FirebaseStorage.instance.ref().child('course_files/$fileName');
 
-      // --------- METADATOS con Content-Disposition ---------
       final metadata = SettableMetadata(
         contentType: file.extension == 'pdf'
             ? 'application/pdf'
@@ -192,8 +185,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
         setState(() {
           _levels[index]['file'] = file;
-          _levels[index]['fileUrl'] = downloadUrl;  // <-- Esto es lo importante
-          _levels[index]['fileName'] = fileName;    // <-- Guardamos nombre para eliminar
+          _levels[index]['fileUrl'] = downloadUrl;
+          _levels[index]['fileName'] = fileName;
         });
 
         print('Archivo subido. URL: $downloadUrl');
@@ -277,8 +270,6 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
       );
       return;
     }
-
-    // Revisa que todos los archivos estén subidos y que los fileUrl sean correctos (si hay archivo)
     for (int i = 0; i < _levels.length; i++) {
       if (_levels[i]['file'] != null && (_levels[i]['fileUrl'] == null || _levels[i]['fileUrl'].toString().isEmpty)) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -380,7 +371,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
               ElevatedButton.icon(
                 onPressed: _addLevel,
                 icon: const Icon(Icons.add),
-                label: const Text("Añadir nivel"),
+                label: Text(AppLocalizations.of(context)!.addLevel),
               ),
               const SizedBox(height: 10),
               for (int i = 0; i < _levels.length; i++) _buildLevelSection(i),
@@ -388,7 +379,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
               ElevatedButton.icon(
                 onPressed: _addFinalTestQuestion,
                 icon: const Icon(Icons.add),
-                label: const Text("Añadir pregunta al test final"),
+                label: Text(AppLocalizations.of(context)!.addFinalTestQuestion),
               ),
               const SizedBox(height: 10),
               ..._finalTest.map((test) => Column(
@@ -418,7 +409,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           Text("${AppLocalizations.of(context)!.content} L${index + 1}"),
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
-            tooltip: "Eliminar nivel",
+            tooltip: AppLocalizations.of(context)!.deleteLevel,
             onPressed: () => _removeLevel(index),
           ),
         ],
@@ -457,7 +448,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                 onPressed: () => _removeFile(index),
                 icon: const Icon(Icons.delete, color: Colors.white),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                label: const Text("Eliminar archivo"),
+                label: Text(AppLocalizations.of(context)!.deleteFile),
               ),
           ],
         ),
@@ -467,7 +458,6 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
             child: Text(AppLocalizations.of(context)!.fileAttachedSuccessfully, style: const TextStyle(color: Colors.green)),
           ),
         const SizedBox(height: 10),
-        // Aquí van todas las preguntas del nivel
         ...List.generate(
           _levels[index]['tests'].length,
               (qIdx) => Column(
@@ -503,7 +493,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
             if (onDelete != null)
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
-                tooltip: "Eliminar pregunta",
+                tooltip: AppLocalizations.of(context)!.deleteQuestion,
                 onPressed: onDelete,
               ),
           ],

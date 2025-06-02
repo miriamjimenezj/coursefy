@@ -272,16 +272,15 @@ class _EditCoursePageState extends State<EditCoursePage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar curso'),
-        content: const Text('¿Estás seguro de que quieres eliminar este curso? Esta acción no se puede deshacer.'),
+        title: Text(AppLocalizations.of(context)!.deleteCourseTitle),
+        content: Text(AppLocalizations.of(context)!.deleteCourseConfirm),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Eliminar', style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppLocalizations.of(context)!.cancel)),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)))
         ],
       ),
     );
     if (confirmed == true) {
-      // Elimina archivos de storage de todos los niveles
       for (var level in _levels.values) {
         final fileUrl = level['fileUrl'] ?? '';
         final fileName = level['fileName'] ?? '';
@@ -296,7 +295,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Curso eliminado correctamente')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.courseDeleted)),
         );
       }
     }
@@ -311,8 +310,6 @@ class _EditCoursePageState extends State<EditCoursePage> {
       );
       return;
     }
-
-    // Contenido O archivo en cada nivel
     for (var entry in _levels.entries) {
       final contentText = entry.value['content'].text.trim();
       final fileUrl = entry.value['fileUrl'];
@@ -414,7 +411,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
             if (onDelete != null)
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
-                tooltip: "Eliminar pregunta",
+                tooltip: AppLocalizations.of(context)!.deleteQuestion,
                 onPressed: onDelete,
               ),
           ],
@@ -455,7 +452,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
           Text("${AppLocalizations.of(context)!.content} $levelKey"),
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
-            tooltip: "Eliminar nivel",
+            tooltip: AppLocalizations.of(context)!.deleteLevel,
             onPressed: () => _removeLevel(levelKey),
           ),
         ],
@@ -491,7 +488,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
                 onPressed: () => _removeFile(levelKey),
                 icon: const Icon(Icons.delete, color: Colors.white),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                label: const Text("Eliminar archivo"),
+                label: Text(AppLocalizations.of(context)!.deleteFile),
               ),
           ],
         ),
@@ -530,7 +527,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_forever, color: Colors.red),
-            tooltip: 'Eliminar curso',
+            tooltip: AppLocalizations.of(context)!.deleteCourse,
             onPressed: _deleteCourse,
           ),
         ],
@@ -580,7 +577,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
               ElevatedButton.icon(
                 onPressed: _addLevel,
                 icon: const Icon(Icons.add),
-                label: const Text("Añadir nivel"),
+                label: Text(AppLocalizations.of(context)!.addLevel),
               ),
               ..._levels.entries.map((entry) => _buildLevelSection(entry.key)),
               ExpansionTile(

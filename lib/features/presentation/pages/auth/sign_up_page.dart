@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:coursefy/features/firebase_conn/firebase_auth/firebase_auth_services.dart';
 import 'package:coursefy/features/presentation/pages/auth/login_page.dart';
 import 'package:coursefy/features/presentation/widgets/form_container_widget.dart';
 import 'package:coursefy/features/presentation/pages/admin/home_admin.dart';
@@ -18,23 +17,22 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  //final FirebaseAuthService _auth = FirebaseAuthService();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-  TextEditingController _adminCodeController = TextEditingController(); // Admin code
+  TextEditingController _adminCodeController = TextEditingController();
 
   bool isSigningUp = false;
-  String _selectedRole = "client"; // Rol por defecto
-  String? _adminCode; // Código de administrador desde Firestore
+  String _selectedRole = "client";
+  String? _adminCode;
 
   @override
   void initState() {
     super.initState();
-    _fetchAdminCode(); // Obtener código de admin desde Firebase
+    _fetchAdminCode();
   }
 
   @override
@@ -46,7 +44,6 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
-  /// **Obtener el Admin Code desde Firestore**
   Future<void> _fetchAdminCode() async {
     try {
       DocumentSnapshot adminSettings =
@@ -66,11 +63,10 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() => isSigningUp = true);
 
     try {
-      // Iniciar flujo de inicio de sesión con Google
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
         setState(() => isSigningUp = false);
-        return; // Cancelado por el usuario
+        return;
       }
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
@@ -80,14 +76,12 @@ class _SignUpPageState extends State<SignUpPage> {
         idToken: googleAuth.idToken,
       );
 
-      // Autenticar en Firebase
       final UserCredential userCredential =
       await _firebaseAuth.signInWithCredential(credential);
 
       final User? user = userCredential.user;
 
       if (user != null) {
-        // Crear documento en Firestore SOLO si es nuevo usuario
         final userDoc = await _firestore.collection('users').doc(user.uid).get();
         if (!userDoc.exists) {
           await _firestore.collection('users').doc(user.uid).set({
@@ -105,7 +99,6 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  /// **Función para registrarse con email y contraseña**
   void _signUp() async {
     setState(() {
       isSigningUp = true;
@@ -115,7 +108,6 @@ class _SignUpPageState extends State<SignUpPage> {
     String password = _passwordController.text.trim();
     String adminCodeInput = _adminCodeController.text.trim();
 
-    // Validar si el usuario quiere ser admin
     if (_selectedRole == "admin") {
       if (_adminCode == null) {
         _showErrorDialog("Admin Code Error", "No admin code found in Firestore.");
@@ -135,7 +127,6 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 
     try {
-      // Crear usuario en Firebase Authentication
       UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -144,17 +135,13 @@ class _SignUpPageState extends State<SignUpPage> {
       User? user = userCredential.user;
 
       if (user != null) {
-        // Guardar el rol del usuario en Firestore
         await _firestore.collection('users').doc(user.uid).set({
           'email': user.email,
           'role': _selectedRole,
           'createdAt': DateTime.now(),
         });
 
-        // Iniciar sesión automáticamente
         await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-
-        // Obtener el rol del usuario y redirigir a la pantalla correcta
         _redirectUser(user.uid);
       }
     } catch (e) {
@@ -166,7 +153,6 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  /// **Obtener el rol del usuario y redirigir a la pantalla correcta**
   Future<void> _redirectUser(String uid) async {
     try {
       DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
@@ -190,7 +176,6 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  /// **Mostrar un cuadro de diálogo de error**
   void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,
@@ -228,7 +213,6 @@ class _SignUpPageState extends State<SignUpPage> {
               FormContainerWidget(controller: _passwordController, hintText: "Password", isPasswordField: true),
               const SizedBox(height: 10),
 
-              // Selector de rol
               DropdownButton<String>(
                 value: _selectedRole,
                 items: const [
@@ -242,7 +226,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 },
               ),
 
-              // Campo extra solo si se elige "Admin"
               if (_selectedRole == "admin") ...[
                 const SizedBox(height: 10),
                 FormContainerWidget(

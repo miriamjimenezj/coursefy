@@ -56,7 +56,7 @@ class ProfilePage extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      return const Center(child: Text("Not logged in"));
+      return Center(child: Text(local.notLoggedIn));
     }
 
     return FutureBuilder<List<Map<String, dynamic>>>(
@@ -97,7 +97,7 @@ class ProfilePage extends StatelessWidget {
                   itemCount: data.length,
                   itemBuilder: (context, index) {
                     final item = data[index];
-                    return Center( // Centrar la tarjeta
+                    return Center(
                       child: Container(
                         constraints: const BoxConstraints(maxWidth: 420),
                         child: Card(

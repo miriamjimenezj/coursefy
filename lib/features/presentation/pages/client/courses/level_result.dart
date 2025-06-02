@@ -38,7 +38,6 @@ class LevelResultPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        //title: Text('Results $levelTitle'),
         title: Text(
           levelTitle.toLowerCase() == AppLocalizations.of(context)!.finalTest.toLowerCase()
               ? AppLocalizations.of(context)!.finalTestOnly
@@ -110,7 +109,7 @@ class LevelResultPage extends StatelessWidget {
                 if (passed)
                   IconButton(
                     icon: const Icon(Icons.arrow_forward, size: 32),
-                    tooltip: localization.nextLevel, // para accesibilidad
+                    tooltip: localization.nextLevel,
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
@@ -118,8 +117,6 @@ class LevelResultPage extends StatelessWidget {
                           builder: (_) => CoursesPage(
                             courseId: courseId,
                             courseTitle: courseTitle,
-                            // No pases levels directamente, deja que CoursesPage lo cargue de Firestore
-                            //levels: const {}, // o quítalo si tu constructor lo permite
                           ),
                         ),
                       );
@@ -129,7 +126,7 @@ class LevelResultPage extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.refresh, size: 32),
                     onPressed: () {
-                      Navigator.pop(context); // Retry test
+                      Navigator.pop(context);
                     },
                   ),
               ],
@@ -140,7 +137,6 @@ class LevelResultPage extends StatelessWidget {
     );
   }
 
-  // Dummy callback for HomeClient constructor
   static void _dummyLocaleChange(Locale _) {}
 }
 

@@ -144,5 +144,13 @@
   "levelRequired": "You must add at least one level",
   "eachLevelAtLeastOneQuestion": "Each level must have at least one question.",
   "levelContentOrFile": "Each Level must have content or an attached file.",
-  "fileDeletedSuccessfully": "File Deleted succesfully"
+  "fileDeletedSuccessfully": "File Deleted succesfully",
+  "addFinalTestQuestion": "Add question to final test",
+  "deleteLevel": "Delete level",
+  "deleteFile": "Delete file",
+  "deleteQuestion": "Delete question",
+  "deleteCourseConfirm": "Are you sure you want to delete this course? This action cannot be undone.",
+  "deleteCourse": "Delete course",
+  "courseDeleted": "Course deleted successfully",
+  "notLoggedIn": "Not logged in"
 }

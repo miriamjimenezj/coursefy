@@ -178,7 +178,6 @@ class SettingsClientPage extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 30),
-              // *** Cambia de tema claro/oscuro ***
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

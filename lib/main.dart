@@ -19,7 +19,6 @@ import 'package:coursefy/features/presentation/pages/client/settings_client.dart
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inicializar Firebase
   if (kIsWeb) {
     await Firebase.initializeApp(
       options: FirebaseOptions(
@@ -52,7 +51,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Locale _locale = const Locale('en'); // Idioma predeterminado
+  Locale _locale = const Locale('en');
 
   void _changeLanguage(Locale locale) {
     setState(() {
@@ -65,10 +64,9 @@ class _MyAppState extends State<MyApp> {
     User? user = auth.currentUser;
 
     if (user == null) {
-      return LoginPage(onLocaleChange: _changeLanguage); // ✅ Se pasa onLocaleChange
+      return LoginPage(onLocaleChange: _changeLanguage);
     }
 
-    // Obtener el rol del usuario desde Firestore
     try {
       DocumentSnapshot userDoc =
       await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
@@ -81,7 +79,7 @@ class _MyAppState extends State<MyApp> {
       }
     } catch (e) {
       print("Error obteniendo el rol del usuario: $e");
-      return LoginPage(onLocaleChange: _changeLanguage); // ✅ Se pasa onLocaleChange
+      return LoginPage(onLocaleChange: _changeLanguage);
     }
   }
 
@@ -106,7 +104,6 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       themeMode: themeNotifier.isDark ? ThemeMode.dark : ThemeMode.light,
-      // 👆
       home: FutureBuilder<Widget>(
         future: _getHomeScreen(),
         builder: (context, snapshot) {

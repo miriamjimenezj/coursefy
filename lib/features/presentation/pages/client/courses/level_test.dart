@@ -75,16 +75,13 @@ class _LevelTestPageState extends State<LevelTestPage> {
 
         await docRef.set(dataToUpdate, SetOptions(merge: true));
 
-        // ----- GESTIÓN DE INSIGNIAS EN USERS -----
         if (passed && widget.levelKey == 'finalTest') {
           final userDocRef = _firestore.collection('users').doc(userId);
 
-          // Leer datos del usuario (cursos completados y badges)
           final userSnap = await userDocRef.get();
           final List<dynamic> userCompletedCourses = userSnap.data()?['completedCourses'] ?? [];
           final List<dynamic> userBadges = userSnap.data()?['badges'] ?? [];
 
-          // Añadir el curso si no estaba
           List<String> completedCourses = List<String>.from(userCompletedCourses);
           if (!completedCourses.contains(widget.courseId)) {
             completedCourses.add(widget.courseId);
@@ -116,7 +113,6 @@ class _LevelTestPageState extends State<LevelTestPage> {
               'badges': FieldValue.arrayUnion(newBadges),
             });
 
-            // ALERT SOLO SI HAY NUEVAS INSIGNIAS
             await showDialog(
               context: context,
               builder: (context) => AlertDialog(
@@ -143,7 +139,6 @@ class _LevelTestPageState extends State<LevelTestPage> {
         }
       }
 
-      // Guardar respuestas del usuario en el progreso (igual que antes)
       final List<Map<String, dynamic>> userAnswers = [];
 
       for (int i = 0; i < widget.questions.length; i++) {
@@ -167,7 +162,6 @@ class _LevelTestPageState extends State<LevelTestPage> {
         'userAnswers': userAnswers,
       }, SetOptions(merge: true));
 
-      // Al finalizar, pasa la lista de nuevas insignias a LevelResultPage
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -181,7 +175,7 @@ class _LevelTestPageState extends State<LevelTestPage> {
             courseTitle: "Course",
             levels: {},
             userAnswers: _selectedAnswers,
-            newBadges: newBadges, // <-- IMPORTANTE
+            newBadges: newBadges,
           ),
         ),
       );

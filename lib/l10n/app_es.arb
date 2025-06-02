@@ -147,5 +147,13 @@
   "levelRequired": "Debes añadir al menos un nivel",
   "eachLevelAtLeastOneQuestion": "Cada nivel debe tener al menos una pregunta.",
   "levelContentOrFile": "Cada nivel debe tener contenido o un fichero adjunto.",
-  "fileDeletedSuccessfully": "Archivo eliminado correctamente"
+  "fileDeletedSuccessfully": "Archivo eliminado correctamente",
+  "addFinalTestQuestion": "Añadir pregunta al test final",
+  "deleteLevel": "Eliminar nivel",
+  "deleteFile": "Eliminar archivo",
+  "deleteQuestion": "Eliminar pregunta",
+  "deleteCourseConfirm": "¿Estás seguro de que quieres eliminar este curso? Esta acción no se puede deshacer.",
+  "deleteCourse": "Eliminar curso",
+  "courseDeleted": "Curso eliminado correctamente",
+  "notLoggedIn": "No has iniciado sesión"
 }

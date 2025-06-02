@@ -39,7 +39,6 @@ class _CoursesPageState extends State<CoursesPage> {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) return;
 
-    // Traer progreso del usuario
     final progressSnapshot = await FirebaseFirestore.instance
         .collection('course_progress')
         .where('userId', isEqualTo: userId)
@@ -47,7 +46,6 @@ class _CoursesPageState extends State<CoursesPage> {
         .limit(1)
         .get();
 
-    // Traer los datos del curso y sus niveles
     final courseDoc = await FirebaseFirestore.instance
         .collection('courses')
         .doc(widget.courseId)
@@ -189,17 +187,15 @@ class _CoursesPageState extends State<CoursesPage> {
                 icon: const Icon(Icons.check_circle),
                 label: Text(AppLocalizations.of(context)!.finalTest),
               ),
-              const Spacer(), // Empuja la casita abajo
+              const Spacer(),
               IconButton(
                 icon: const Icon(Icons.home, size: 40, color: Colors.blueAccent),
-                tooltip: AppLocalizations.of(context)!.home, // Añade la key en tu arb
+                tooltip: AppLocalizations.of(context)!.home,
                 onPressed: () {
-                  // Vuelve a la Home, ajusta la navegación según tu app
                   Navigator.of(context).popUntil((route) => route.isFirst);
-                  // O usa Navigator.pushReplacement si quieres reemplazar
                 },
               ),
-              const SizedBox(height: 16), // Espacio inferior extra
+              const SizedBox(height: 16),
             ],
           ),
         ),
