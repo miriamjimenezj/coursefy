@@ -6,6 +6,7 @@ import 'package:coursefy/features/presentation/widgets/form_container_widget.dar
 import 'package:coursefy/features/presentation/pages/admin/home_admin.dart';
 import 'package:coursefy/features/presentation/pages/client/home_client.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SignUpPage extends StatefulWidget {
   final Function(Locale) onLocaleChange;
@@ -265,11 +266,26 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               if (_selectedRole == "client") ...[
                 const SizedBox(height: 12),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.login),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  label: const Text("Sign Up with Google"),
-                  onPressed: _signUpWithGoogle,
+                GestureDetector(
+                  onTap: _signUpWithGoogle,
+                  child: Container(
+                    width: double.infinity,
+                    height: 45,
+                    decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(10)),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(FontAwesomeIcons.google, color: Colors.white),
+                          SizedBox(width: 5),
+                          Text(
+                            "Sign Up with Google",
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ],
               const SizedBox(height: 20),
