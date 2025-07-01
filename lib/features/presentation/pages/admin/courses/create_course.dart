@@ -76,6 +76,12 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     });
   }
 
+  void _removeFinalTestQuestion(int index) {
+    setState(() {
+      _finalTest.removeAt(index);
+    });
+  }
+
   void _addFinalTestQuestion() {
     setState(() {
       _finalTest.add({
@@ -376,18 +382,24 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
               const SizedBox(height: 10),
               for (int i = 0; i < _levels.length; i++) _buildLevelSection(i),
               const SizedBox(height: 30),
+              ..._finalTest.asMap().entries.map((entry) {
+                int index = entry.key;
+                Map<String, dynamic> test = entry.value;
+                return Column(
+                  children: [
+                    _buildTestQuestion(
+                      test,
+                      onDelete: () => _removeFinalTestQuestion(index),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                );
+              }).toList(),
               ElevatedButton.icon(
                 onPressed: _addFinalTestQuestion,
                 icon: const Icon(Icons.add),
                 label: Text(AppLocalizations.of(context)!.addFinalTestQuestion),
               ),
-              const SizedBox(height: 10),
-              ..._finalTest.map((test) => Column(
-                children: [
-                  _buildTestQuestion(test),
-                  const SizedBox(height: 32),
-                ],
-              )),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _saveCourse,
