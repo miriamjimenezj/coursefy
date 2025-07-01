@@ -430,9 +430,16 @@ class _EditCoursePageState extends State<EditCoursePage> {
               ),
               Checkbox(
                 value: test['answers'][i]['correct'],
-                onChanged: (value) {
+                onChanged: (val) {
                   setState(() {
-                    test['answers'][i]['correct'] = value!;
+                    if (val == true) {
+                      for (var j = 0; j < test['answers'].length; j++) {
+                        test['answers'][j]['correct'] = false;
+                      }
+                      test['answers'][i]['correct'] = true;
+                    } else {
+                      test['answers'][i]['correct'] = false;
+                    }
                   });
                 },
               ),
