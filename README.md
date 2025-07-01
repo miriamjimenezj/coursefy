@@ -71,7 +71,13 @@ En la siguiente imagen se detalla la estructura del proyecto, que refleja direct
 ### Descargar la aplicación en Android
 En el siguiente enlace se encuentra la APK para instalar Coursefy en Android
 
-https://ceu365-my.sharepoint.com/:f:/g/personal/miriam_jimenezjimenez_usp_ceu_es/ElxSfl0Wd-JPoHRAZ14xUeYB7fHyTskSqSvV7_T_aQI_fg?e=3L4lbg 
+[APK](https://github.com/miriamjimenezj/coursefy/tree/main/APK)
+
+Dentro de esta carpeta podemos encontrar 4 versiones diferentes de la APK. Por defecto se debe instalar el archivo app-release.apk. En caso de no funcionar, se han generado las siguientes APKs:
+
+- app-arm64-v8a-release.apk -> Destinada a dispositivos modernos con procesadores ARM de 64 bits.
+- app-armeabi-v7a-release.apk -> Destinada a dispositivos más antiguos con procesadores ARM de 32 bits.
+- app-x86_64-release.apk -> Destinada a dispositivos y emuladores con arquitectura Intel x86_64.
 
 #### Pasos para instalar la APK:
 
