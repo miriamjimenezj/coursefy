@@ -1,10 +1,9 @@
 # Coursefy
 
-**Coursefy** es una aplicación multiplataforma educativa diseñada para empresas que desean ofrecer formación a sus empleados de forma atractiva y estructurada. Gestiona la creación y seguimiento de cursos, con diferentes niveles, contenidos explicativos y pruebas tipo test. Está diseñada para 2 tipos de usuarios: administradores y clientes.La app permite a los administradores crear cursos compuestos por niveles, contenido teórico, archivos descargables y tests. Los empleados (usuarios cliente) pueden acceder a estos cursos, avanzar progresivamente y hacer un seguimiento de su progreso.
+**Coursefy** es una aplicación multiplataforma educativa diseñada para empresas que desean ofrecer formación a sus empleados de forma atractiva y estructurada. Gestiona la creación y seguimiento de cursos, con diferentes niveles, contenidos explicativos y pruebas tipo test. Está diseñada para 2 tipos de usuarios: administradores y clientes. La app permite a los administradores crear cursos compuestos por niveles, contenido teórico, archivos descargables y tests. Los empleados (usuarios cliente) pueden acceder a estos cursos, avanzar progresivamente y hacer un seguimiento de su progreso.
 
 Está desarrollada en el framework de Flutter con Dart y respaldada por Firebase (Firestore, Auth y Storage).
 
----
 
 ## Tabla de contenidos
 
@@ -16,26 +15,28 @@ Está desarrollada en el framework de Flutter con Dart y respaldada por Firebase
 - [Instalación en dispositivos reales](#instalación-en-dispositivos-reales)
   - [Descargar la aplicación en Android](#descargar-la-aplicación-en-android)
   - [Descargar la aplicación en iOS](#descargar-la-aplicación-en-ios)
+- [Clonar el repositorio](#clonar-el-repositorio)
 - [Instalación y configuración del proyecto](#instalación-y-configuración-del-proyecto)
+- [Dependencias Principales](#dependencias-principales)
+- [Buenas Prácticas](#buenas-prácticas)
+- [Licencia](#licencia)
 
-- [Notas y consideraciones](#notas-y-consideraciones)
 
----
 
 ## Características principales
 
-- **Gestión de usuarios**: autenticación con Firebase Auth y almacenamiento de datos en Firestore.
-- **Roles diferenciados**: administradores y clientes con interfaces y permisos distintos.
-- **Creación de cursos**: permite a los administradores crear cursos con múltiples niveles, añadir contenido y subir archivos PDF, TXT o HTML para cada nivel.
-- **Tests por niveles y finales**: tests de preguntas tipo test tanto por nivel como test final.
-- **Visualización de archivos**: los usuarios pueden ver o descargar archivos adjuntos en cada nivel.
-- **Sistema de progreso**: desbloqueo progresivo de niveles según el avance del usuario.
-- **Soporte multilenguaje**: disponible en español e inglés.
-- **Tema claro/oscuro**: el usuario puede elegir el modo de visualización desde ajustes.
-- **Gestión de cuentas**: cambio de contraseña y eliminación de cuenta.
+- **Gestión de usuarios**: autenticación con Firebase Auth y almacenamiento de datos en Firestore.  
+- **Roles diferenciados**: administradores y clientes con interfaces y permisos distintos.  
+- **Creación de cursos**: permite a los administradores crear cursos con múltiples niveles, añadir contenido y subir archivos PDF, TXT o HTML para cada nivel.  
+- **Tests por niveles y finales**: tests de preguntas tipo test tanto por nivel como test final.  
+- **Visualización de archivos**: los usuarios pueden ver o descargar archivos adjuntos en cada nivel.  
+- **Sistema de progreso**: desbloqueo progresivo de niveles según el avance del usuario.  
+- **Soporte multilenguaje**: disponible en español e inglés.  
+- **Tema claro/oscuro**: el usuario puede elegir el modo de visualización desde ajustes.  
+- **Gestión de cuentas**: cambio de contraseña y eliminación de cuenta.  
 - **Tags y filtros**: los cursos pueden tener etiquetas para facilitar la búsqueda y filtrado.
 
----
+
 
 ## Funcionalidades destacadas por rol
 
@@ -46,6 +47,7 @@ Está desarrollada en el framework de Flutter con Dart y respaldada por Firebase
 - Cambiar el idioma y el tema de la app.
 - Ver y gestionar los cursos creados.
 
+
 ### Cliente
 
 - Consultar cursos, niveles y realizar tests.
@@ -54,7 +56,7 @@ Está desarrollada en el framework de Flutter con Dart y respaldada por Firebase
 - Consultar su progreso y perfil.
 - Cambiar idioma, tema y gestionar su cuenta.
 
----
+
 
 ## Estructura del proyecto
 
@@ -63,45 +65,50 @@ En la siguiente imagen se detalla la estructura del proyecto, que refleja direct
 ![alt text](image.png)
 
 
----
 
 ## Instalación en dispositivos reales
 
 ### Descargar la aplicación en Android
 En el siguiente enlace se encuentra la APK para instalar Coursefy en Android
 
-https://ceu365-my.sharepoint.com/:f:/g/personal/miriam_jimenezjimenez_usp_ceu_es/ElxSfl0Wd-JPoHRAZ14xUeYB7fHyTskSqSvV7_T_aQI_fg?e=3L4lbg
+https://ceu365-my.sharepoint.com/:f:/g/personal/miriam_jimenezjimenez_usp_ceu_es/ElxSfl0Wd-JPoHRAZ14xUeYB7fHyTskSqSvV7_T_aQI_fg?e=3L4lbg 
 
 #### Pasos para instalar la APK:
 
 1. **Descarga el archivo** desde el enlace anterior directamente en tu dispositivo Android.
+
 2. Una vez descargado, abre el archivo `.apk`. Es posible que debas ir a la carpeta **Descargas** o usar un gestor de archivos.
+
 3. Si es la primera vez que instalas aplicaciones fuera de Google Play, Android te pedirá **habilitar la instalación de apps desde fuentes desconocidas**:
-  - Se abrirá una advertencia, pulsa en **Ajustes**.
-  - Activa la opción **Permitir desde esta fuente**.
-  - Vuelve atrás e inicia de nuevo la instalación.
+
+   - Se abrirá una advertencia, pulsa en **Ajustes**.
+   - Activa la opción **Permitir desde esta fuente**.
+   - Vuelve atrás e inicia de nuevo la instalación.
+
 4. Pulsa en **Instalar** y espera a que finalice el proceso.
+
 5. Una vez instalada, pulsa en **Abrir** para empezar a usar Coursefy.
 
 > Requisitos mínimos:
 > - Sistema operativo Android 8.0 o superior.
 > - Conexión a internet para acceder a los contenidos de los cursos.
 
+---
 
 ### Descargar la aplicación en iOS
 Actualmente, la instalación de Coursefy en dispositivos iOS se realiza de forma local desde un Mac, conectando el iPhone por cable y utilizando Android Studio junto con Xcode. Este método es útil durante el desarrollo o para pruebas internas sin necesidad de publicar la app en App Store.
 
 #### Pasos a seguir para la instalación en un iPhone
 
-##### 1. **Tener el proyecto instalado en el mac**
+#### 1. **Tener el proyecto instalado en el mac**
 Para ver cómo instalar y configurar el proyecto en el ordenador, revisar la sección: [Instalación y configuración del proyecto](#instalación-y-configuración-del-proyecto)
 
-##### 2. **Conecta el iPhone al Mac mediante cable USB**
+#### 2. **Conecta el iPhone al Mac mediante cable USB**
 
 - Desbloquea el iPhone y acepta el mensaje de confianza si aparece ("¿Confiar en este ordenador?").
 - El dispositivo debe aparecer disponible como destino de ejecución en Android Studio o Xcode.
 
-##### 3. **Activa el modo desarrollador en el iPhone**
+#### 3. **Activa el modo desarrollador en el iPhone**
 
 Desde iOS 16, Apple requiere activar manualmente el modo desarrollador para poder ejecutar apps instaladas desde Xcode:
 
@@ -110,7 +117,7 @@ Desde iOS 16, Apple requiere activar manualmente el modo desarrollador para pode
 3. El dispositivo se reiniciará.
 4. Tras el reinicio, confirma el aviso que aparece en pantalla para activar el modo desarrollador.
 
-##### 4. **Abre el proyecto en Android Studio (o VS Code)**
+#### 4. **Abre el proyecto en Android Studio (o VS Code)**
 
 Asegúrate de tener configurado tu entorno Flutter correctamente. Ejecuta el siguiente comando desde la terminal.
 
@@ -120,13 +127,13 @@ flutter doctor
 
 Verifica que Xcode y los dispositivos estén bien configurados.
 
-##### 5. **Abre el proyecto iOS en Xcode**
+#### 5. **Abre el proyecto iOS en Xcode**
 1. Abre la carpeta ios/ del proyecto con Xcode.
 2.	Ve a Signing & Capabilities dentro del proyecto.
 3.	Selecciona tu Team (debe estar asociado a tu Apple ID con rol de desarrollador).
 4.	Asegúrate de que el bundle identifier sea único.
 
-##### 6. **Generación automática de certificados y perfil de aprovisionamiento.**
+#### 6. **Generación automática de certificados y perfil de aprovisionamiento.**
 
 Xcode se encargará de generar:
 
@@ -135,7 +142,7 @@ Xcode se encargará de generar:
 
 Si no tienes cuenta de desarrollador de pago (99$/año), puedes usar una cuenta gratuita de Apple, aunque con limitaciones: la app solo se instalará durante 7 días y debe firmarse de nuevo después.
 
-##### 7. **Construir y ejecutar la app.**
+#### 7. **Construir y ejecutar la app.**
 
 - Desde Android Studio:
   - Asegúrate de que el dispositivo iOS esté seleccionado como destino.
@@ -144,13 +151,13 @@ Si no tienes cuenta de desarrollador de pago (99$/año), puedes usar una cuenta 
 - Desde Xcode:
   - Pulsa el botón de play en la parte superior para compilar e instalar la app en el iPhone.
 
-##### 8. **Confiar en el desarrollador (si es necesario).**
+#### 8. **Confiar en el desarrollador (si es necesario).**
 
 En algunos casos, si usas cuenta gratuita:
-
-1.	En el iPhone, ve a Ajustes > General > VPN y gestión de dispositivos.
-
-2.	Pulsa sobre tu perfil de desarrollador y selecciona Confiar.
+	
+  1.	En el iPhone, ve a Ajustes > General > VPN y gestión de dispositivos.
+	
+  2.	Pulsa sobre tu perfil de desarrollador y selecciona Confiar.
 
 ## Clonar el repositorio
 
@@ -162,12 +169,13 @@ cd coursefy
 ## Instalación y configuración del proyecto
 
 ### Requisitos previos
-- Instalar Flutter: https://docs.flutter.dev/get-started/install/macos/mobile-ios
--	Instalar Dart: https://dart.dev/get-dart
--	Instalar Visual Studio Code y añadir las extensiones necesarias de flutter y dart: https://code.visualstudio.com
--	Instalar Android Studio y editar el SDK Manager tal y como se muestra en la documentación: https://developer.android.com/studio?
+- Instalar Flutter: https://docs.flutter.dev/get-started/install/macos/mobile-ios 
+-	Instalar Dart: https://dart.dev/get-dart 
+-	Instalar Visual Studio Code y añadir las extensiones necesarias de flutter y dart: https://code.visualstudio.com 
+-	Instalar Android Studio y editar el SDK Manager tal y como se muestra en la documentación: https://developer.android.com/studio
+- Instalar XCode
 
-Se debe ejecutar
+Se debe ejecutar 
 ```
 flutter doctor
 ````
@@ -275,8 +283,6 @@ flutter clean
 flutter pub get
 ```
 
----
-
 ## Dependencias principales
 
 - `firebase_core`
@@ -289,17 +295,40 @@ flutter pub get
 - `url_launcher`
 - `flutter_localizations`
 - `google_sign_in`
-- `syncfusion_flutter_pdfviewer`
 
 
-### Buenas prácticas
+## Buenas prácticas
 
 - Utiliza los archivos de traducción `.arb` para mantener la app bilingüe.
 - Usa `Provider` para la gestión global del tema.
 - Guarda los archivos adjuntos en Firebase Storage bajo la ruta `course_files/`.
 
----
 
-## Créditos
+## Licencia
 
-Desarrollado por **Miriam Jiménez** – 2025.
+Este proyecto está licenciado bajo la licencia MIT. Esto significa que puedes utilizar, copiar, modificar y distribuir este software con libertad, siempre que se conserve el aviso de copyright original.
+
+```
+MIT License
+
+Copyright (c) 2025 Miriam Jiménez
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights 
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+copies of the Software, and to permit persons to whom the Software is 
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+THE SOFTWARE.
+```
+
