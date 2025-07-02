@@ -49,11 +49,9 @@ flutter {
 dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.2.3') // 🔹 Firebase BOM (última versión)
 
-    // 🔹 Dependencias necesarias para autenticación con Google
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.android.gms:play-services-auth:20.7.0' // 🔹 Google Sign-In
 
-    // 🔹 Dependencias adicionales recomendadas
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'

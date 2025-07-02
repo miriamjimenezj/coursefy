@@ -25,8 +25,9 @@ class ProfilePage extends StatelessWidget {
 
       final courseData = courseDoc.data();
       final totalLevels = (courseData?['levels'] as Map).length;
-      final completedLevels = (progressData['completedLevels'] as List).length;
-
+      final completedLevels = (progressData['completedLevels'] is List)
+          ? (progressData['completedLevels'] as List).length
+          : 0;
       final progress = (completedLevels / totalLevels).clamp(0.0, 1.0);
 
       result.add({
